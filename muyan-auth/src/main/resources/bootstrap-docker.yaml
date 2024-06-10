@@ -1,0 +1,27 @@
+spring:
+  data:
+    redis:
+      # Redis数据库索引（默认为0）
+      database: 0
+      # Redis服务器地址
+      host: muyan-redis
+      # Redis服务器连接端口
+      port: 6379
+      # Redis服务器连接密码（默认为空）
+      password:
+      # 连接超时时间
+      timeout: 100s
+  cloud:
+    nacos:
+      config:
+        server-addr: muyan-nacos:8848
+        file-extension: yaml
+        # 共享配置文件配置
+        shared-configs:
+          - data-id: muyan-jdbc.yaml
+          - data-id: muyan-swagger.yaml
+          - data-id: muyan-log.yaml
+          - data-id: muyan-security.yaml
+      discovery:
+        server-addr: muyan-nacos:8848
+        service: ${spring.application.name}

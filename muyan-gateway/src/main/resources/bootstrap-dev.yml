@@ -1,0 +1,17 @@
+spring:
+  data:
+    redis:
+      # Redis数据库索引（默认为0）
+      database: 0
+      # Redis服务器地址
+      host: localhost
+      # Redis服务器连接端口
+      port: 6379
+      # Redis服务器连接密码（默认为空）
+      password:
+      # 连接超时时间
+      timeout: 100s
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848

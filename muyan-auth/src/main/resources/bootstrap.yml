@@ -1,0 +1,36 @@
+server:
+  port: 9527
+spring:
+  application:
+    name: muyan-auth
+
+  profiles:
+    active: dev
+
+  cloud:
+    nacos:
+      config:
+        server-addr: localhost:8848
+        file-extension: yaml
+        # 共享配置文件配置
+        shared-configs:
+          - data-id: muyan-jdbc.yaml
+          - data-id: muyan-swagger.yaml
+          - data-id: muyan-log.yaml
+          - data-id: muyan-security.yaml
+      discovery:
+        server-addr: localhost:8848
+        service: ${spring.application.name}
+
+    openfeign:
+      client:
+        config:
+          # 设置默认的超时时间
+          default:
+            connectTimeout: 5000
+            readTimeout: 5000
+            loggerLevel: FULL
+# 开启feign和sentinel的整合，否则当使用feign调用的服务不可达或有异常时，不会触发对应的fallback
+feign:
+  sentinel:
+    enabled: true

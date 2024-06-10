@@ -1,0 +1,49 @@
+spring:
+  data:
+    redis:
+      # Redis数据库索引（默认为0）
+      database: 0
+      # Redis服务器地址
+      host: muyan-redis
+      # Redis服务器连接端口
+      port: 6379
+      # Redis服务器连接密码（默认为空）
+      password:
+      # 连接超时时间
+      timeout: 100s
+  cloud:
+    nacos:
+      discovery:
+        server-addr: muyan-nacos:8848 # nacos地址
+        service: ${spring.application.name}
+      config:
+        server-addr: muyan-nacos:8848
+        file-extension: yaml
+    sentinel:
+      transport:
+        dashboard: muyan-sentinel:8858 #配置Sentinel dashboard控制台服务地址
+        port: 8858 # Sentinel dashboard控制台默认端口8080，如果被占用，可以修改
+    gateway:
+      routes:
+        # 用户模块
+        - id: user
+          uri: lb://muyan-system
+          predicates:
+            - Path=/user/**
+        # 认证中心模块
+        - id: auth
+          uri: lb://muyan-auth
+          predicates:
+            - Path=/auth/**
+    openfeign:
+      client:
+        config:
+          # 设置默认的超时时间
+          default:
+            connectTimeout: 5000
+            readTimeout: 5000
+            loggerLevel: FULL
+# 开启feign和sentinel的整合，否则当使用feign调用的服务不可达或有异常时，不会触发对应的fallback
+feign:
+  sentinel:
+    enabled: true
