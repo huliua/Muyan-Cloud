@@ -40,7 +40,7 @@ public class AuthController {
     @PostMapping("/logout")
     @Operation(summary = "登出接口")
     @SentinelResource(value = "/auth/logout", blockHandlerClass = UserApiBlock.class, blockHandler = "getUserBlockHandler")
-    public ResponseResult<Object> logout() {
+    public ResponseResult logout() {
         StpUtil.logout();
         return ResponseResult.success();
     }
