@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.muyan.mapper.CodeShareInfoMapper">
+
+    <select id="getCodesListByUserId" resultType="com.muyan.domain.vo.CodeShareInfoVo">
+        select * from (
+            select info.*, case when favor.id is not null then 1 else 0 end as hasStared
+            from t_code_share_info info
+            left join t_code_share_favorite favor on info.id = favor.codeInfoId and favor.userId=#{userId,jdbcType=BIGINT}
+        )t_code_share_info <where>
+         ${ew.sqlSegment}
+        </where>
+    </select>
+</mapper>

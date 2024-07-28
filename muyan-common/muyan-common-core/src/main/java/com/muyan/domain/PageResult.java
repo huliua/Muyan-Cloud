@@ -6,6 +6,7 @@ import java.util.List;
 
 /**
  * 分页查询结果
+ *
  * @author huliua
  * @version 1.0
  * @date 2024-05-05 17:00
@@ -16,17 +17,17 @@ public class PageResult<T> {
     /**
      * 总记录数
      */
-    private Integer total;
+    private Long total;
 
     /**
      * 总分页数
      */
-    private Integer pageNum;
+    private Long pageNum;
 
     /**
      * 每页记录数
      */
-    private Integer pageSize;
+    private Long pageSize;
 
     /**
      * 分页查询结果

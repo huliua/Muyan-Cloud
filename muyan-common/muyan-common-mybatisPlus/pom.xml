@@ -5,19 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.muyan</groupId>
-        <artifactId>Muyan-Cloud</artifactId>
+        <artifactId>muyan-common</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>muyan-common</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>muyan-common-knife4j</module>
-        <module>muyan-common-core</module>
-        <module>muyan-common-security</module>
-        <module>muyan-common-redis</module>
-        <module>muyan-common-mybatisPlus</module>
-    </modules>
+    <artifactId>muyan-common-mybatisPlus</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -26,21 +18,20 @@
     </properties>
 
     <dependencies>
+        <!--SpringBoot集成druid连接池-->
         <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-core</artifactId>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
         </dependency>
-
+        <!--mybatis-plus和springboot整合-->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
         </dependency>
-
+        <!--Mysql数据库驱动8 -->
         <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-            <version>2.0.41</version>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
         </dependency>
     </dependencies>
-
 </project>

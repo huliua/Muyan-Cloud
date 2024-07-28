@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>muyan-system</module>
+        <module>muyan-codeShare</module>
     </modules>
 
     <properties>
@@ -26,6 +27,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
         <!--nacos-discovery-->
         <dependency>
