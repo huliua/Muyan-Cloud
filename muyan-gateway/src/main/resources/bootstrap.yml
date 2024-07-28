@@ -29,6 +29,11 @@ spring:
           uri: lb://muyan-auth
           predicates:
             - Path=/auth/**
+        # 代码分享模块
+        - id: codeShare
+          uri: lb://muyan-codeShare
+          predicates:
+            - Path=/codeShare/**
     openfeign:
       client:
         config:

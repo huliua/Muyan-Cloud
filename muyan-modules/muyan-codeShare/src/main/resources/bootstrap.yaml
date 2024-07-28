@@ -1,0 +1,22 @@
+server:
+  port: 7593
+spring:
+  application:
+    name: muyan-codeShare
+
+  profiles:
+    active: dev
+
+  cloud:
+    nacos:
+      config:
+        server-addr: localhost:8848
+        file-extension: yaml
+      discovery:
+        server-addr: localhost:8848
+        service: ${spring.application.name}
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
