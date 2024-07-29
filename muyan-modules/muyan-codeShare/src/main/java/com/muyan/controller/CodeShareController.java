@@ -76,4 +76,9 @@ public class CodeShareController {
     public ResponseResult<CodeShareVo> getCodeShare(@PathVariable("id") Long id) {
         return codeShareService.getCodeShare(id);
     }
+
+    @PostMapping("/deleteCodeShare")
+    public ResponseResult<String> deleteCodeShare(@PathParam("id") Long id) {
+        return codeShareService.deleteCodeShare(id);
+    }
 }

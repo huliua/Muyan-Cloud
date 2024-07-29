@@ -20,8 +20,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Tag implements Serializable {
-    @TableField(exist = false)
-    private Long SerialVersionUID = 1L;
+    private static final Long SerialVersionUID = 1L;
 
     @TableId(type = IdType.AUTO)
     private Long id;

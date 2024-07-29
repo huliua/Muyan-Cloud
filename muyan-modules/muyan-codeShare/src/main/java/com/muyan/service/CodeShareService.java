@@ -21,4 +21,6 @@ public interface CodeShareService {
     ResponseResult<String> operateCodeShareInfo(CodeShareInfoDto codeShareInfoDto);
 
     ResponseResult<CodeShareVo> getCodeShare(Long id);
+
+    ResponseResult<String> deleteCodeShare(Long id);
 }

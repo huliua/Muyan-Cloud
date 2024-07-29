@@ -100,7 +100,8 @@ public class CodeShareServiceImpl implements CodeShareService {
         // 新增tag数据
         tagMapper.insertNotExists(codeShareDto.getTagList());
 
-        return ResponseResult.success();
+        // 返回当前id
+        return ResponseResult.success(String.valueOf(codeShareDto.getCodeShareInfo().getId()));
     }
 
     @Override
@@ -181,6 +182,25 @@ public class CodeShareServiceImpl implements CodeShareService {
         codeShareVo.setTagList(tagList);
 
         return ResponseResult.success(codeShareVo);
+    }
+
+    @Override
+    public ResponseResult<String> deleteCodeShare(Long id) {
+        // 先删除代码信息(有权限控制)
+        LambdaQueryWrapper<CodeShareInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CodeShareInfo::getId, id);
+        queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getVisibility, "public").or().eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
+        int count = codeShareInfoMapper.delete(queryWrapper);
+        if (count == 0) {
+            return ResponseResult.fail("删除失败！");
+        }
+        // 删除代码文件信息
+        codeShareFileMapper.delete(new LambdaQueryWrapper<CodeShareFile>().eq(CodeShareFile::getInfoId, id));
+        // 删除标签信息
+        codeShareTagMapper.delete(new LambdaQueryWrapper<CodeShareTag>().eq(CodeShareTag::getInfoId, id));
+        // 删除收藏信息
+        codeShareFavoriteMapper.delete(new LambdaQueryWrapper<CodeShareFavorite>().eq(CodeShareFavorite::getCodeInfoId, id));
+        return ResponseResult.success();
     }
 
     private void operateFavorite(Long codeInfoId, boolean isFavorite) {

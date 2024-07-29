@@ -22,8 +22,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class CodeShareFile implements Serializable {
 
-    @TableField(exist = false)
-    private Long SerialVersionUID = 1L;
+    private static final Long SerialVersionUID = 1L;
 
     @TableId
     private String id;
