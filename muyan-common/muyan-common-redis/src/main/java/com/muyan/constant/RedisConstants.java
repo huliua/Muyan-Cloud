@@ -25,6 +25,12 @@ public class RedisConstants {
     public static final String PERMISSION_KEY_PREFIX = "permission:";
 
     /**
+     * 字典信息Key的前缀
+     */
+    public static final String DICT_KEY_PRE = "dict:";
+
+
+    /**
      * 过期时间，单位为秒
      */
     public static final int EXPIRE_TIME = 60 * 30;

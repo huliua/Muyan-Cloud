@@ -25,7 +25,7 @@ public class Tag implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String tagCode;
+    private String code;
 
-    private String tagName;
+    private String name;
 }

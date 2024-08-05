@@ -3,9 +3,9 @@
 <mapper namespace="com.muyan.mapper.TagMapper">
 
     <insert id="insertNotExists" parameterType="com.muyan.domain.entity.Tag">
-        INSERT IGNORE INTO t_tag (tagCode, tagName) VALUES
+        INSERT IGNORE INTO t_tag (code, name) VALUES
         <foreach collection='tagList' item='item' separator=','>
-        (#{item.tagCode}, #{item.tagName})
+        (#{item.code}, #{item.name})
         </foreach>
     </insert>
 </mapper>

@@ -80,11 +80,11 @@ public class CodeShareServiceImpl implements CodeShareService {
         List<CodeShareTag> codeShareTagList = new ArrayList<>();
         if (codeShareDto.getTagList() != null) {
             codeShareDto.getTagList().forEach(tag -> {
-                String tagCode = tag.getTagCode();
+                String tagCode = tag.getCode();
                 if (StrUtil.isEmpty(tagCode)) {
                     // 生成tagCode
                     tagCode = IdUtil.fastUUID();
-                    tag.setTagCode(tagCode);
+                    tag.setCode(tagCode);
                 }
                 // 保存便签信息
                 CodeShareTag codeShareTag = new CodeShareTag();
@@ -174,7 +174,7 @@ public class CodeShareServiceImpl implements CodeShareService {
         // 获取文件信息
         List<CodeShareFile> codeShareFileList = codeShareFileMapper.selectList(new LambdaQueryWrapper<CodeShareFile>().eq(CodeShareFile::getInfoId, id));
         // 获取标签信息
-        List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>().exists("select 1 from t_code_share_tag t where t.infoId={0} and t.tagCode=t_tag.tagCode", id));
+        List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>().exists("select 1 from t_code_share_tag t where t.infoId={0} and t.tagCode=t_tag.code", id));
 
         CodeShareVo codeShareVo = new CodeShareVo();
         codeShareVo.setCodeShareInfoVo(BeanUtil.copyProperties(codeShareInfo, CodeShareInfoVo.class));

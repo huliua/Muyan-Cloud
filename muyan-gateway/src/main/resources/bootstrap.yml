@@ -23,7 +23,7 @@ spring:
         - id: user
           uri: lb://muyan-system
           predicates:
-            - Path=/user/**
+            - Path=/user/**,/dict/**
         # 认证中心模块
         - id: auth
           uri: lb://muyan-auth
