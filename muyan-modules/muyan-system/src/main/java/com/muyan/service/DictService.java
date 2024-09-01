@@ -1,6 +1,6 @@
 package com.muyan.service;
 
-import com.muyan.entity.DictVo;
+import com.muyan.domain.vo.DictVo;
 
 import java.util.List;
 

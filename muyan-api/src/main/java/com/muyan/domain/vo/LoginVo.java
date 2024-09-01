@@ -25,6 +25,10 @@ public class LoginVo implements Serializable {
 
     private String email;
 
+    private String sex;
+
+    private String signature;
+
     /**
      * token名称
      */

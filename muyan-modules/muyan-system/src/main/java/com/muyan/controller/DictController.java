@@ -1,7 +1,7 @@
 package com.muyan.controller;
 
 import com.muyan.domain.ResponseResult;
-import com.muyan.entity.DictVo;
+import com.muyan.domain.vo.DictVo;
 import com.muyan.service.DictService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.RequestMapping;

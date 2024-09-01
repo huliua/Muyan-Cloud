@@ -1,4 +1,4 @@
-package com.muyan.entity;
+package com.muyan.domain.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

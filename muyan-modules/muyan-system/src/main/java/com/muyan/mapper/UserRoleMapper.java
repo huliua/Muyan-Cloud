@@ -1,8 +1,7 @@
 package com.muyan.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.muyan.entity.UserRole;
+import com.muyan.domain.entity.UserRole;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;

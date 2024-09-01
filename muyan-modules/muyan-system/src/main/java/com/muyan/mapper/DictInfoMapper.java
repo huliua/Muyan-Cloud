@@ -1,7 +1,7 @@
 package com.muyan.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.muyan.entity.DictInfo;
+import com.muyan.domain.entity.DictInfo;
 
 /**
  * @author huliua
