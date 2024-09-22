@@ -7,6 +7,7 @@ import com.muyan.domain.dto.LoginDto;
 import com.muyan.domain.dto.UserUpdateDto;
 import com.muyan.domain.vo.LoginVo;
 import com.muyan.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,7 @@ import java.util.Objects;
 @Slf4j
 @RestController
 @RequestMapping("/user")
+@Tag(name = "用户模块")
 public class UserController {
 
     @Resource

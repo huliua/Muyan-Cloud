@@ -1,5 +1,7 @@
 package com.muyan.controller;
 
+import cn.dev33.satoken.stp.SaTokenInfo;
+import cn.dev33.satoken.stp.StpUtil;
 import com.muyan.constants.CodeShareConstants;
 import com.muyan.domain.PageResult;
 import com.muyan.domain.ResponseResult;
@@ -15,6 +17,8 @@ import jakarta.annotation.Resource;
 import jakarta.websocket.server.PathParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 /**
  * CodeShare模块相关
@@ -90,5 +94,19 @@ public class CodeShareController {
     @Operation(summary = "删除代码")
     public ResponseResult<String> deleteCodeShare(@PathParam("id") Long id) {
         return codeShareService.deleteCodeShare(id);
+    }
+
+    @PostMapping("/search")
+    public ResponseResult<PageResult<CodeShareInfoVo>> searchCodeShare(@RequestBody CodeShareInfoPageQueryDto codeShareQueryDto) throws IOException {
+        return codeShareService.getCodesSearchList(codeShareQueryDto);
+    }
+
+    @GetMapping("/getToken")
+    public ResponseResult<String> getToken() {
+        // 执行登录
+        StpUtil.login(1L);
+        // 获取token信息
+        SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+        return ResponseResult.success(tokenInfo.getTokenValue());
     }
 }
