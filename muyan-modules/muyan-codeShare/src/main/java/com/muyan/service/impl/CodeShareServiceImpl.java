@@ -5,13 +5,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.muyan.constants.CodeShareConstants;
@@ -56,8 +49,6 @@ public class CodeShareServiceImpl implements CodeShareService {
     private TagMapper tagMapper;
     @Resource
     private CodeShareFavoriteMapper codeShareFavoriteMapper;
-    @Resource
-    private ElasticsearchClient elasticsearchClient;
 
 
     @Override
@@ -217,47 +208,6 @@ public class CodeShareServiceImpl implements CodeShareService {
     @Override
     public ResponseResult<PageResult<CodeShareInfoVo>> getCodesSearchList(CodeShareInfoPageQueryDto codeShareQueryDto) throws IOException {
         PageResult<CodeShareInfoVo> result = new PageResult<>();
-        // 构建查询条件
-        Long userId = StpUtil.getLoginIdAsLong();
-        Page<CodeShareInfo> infoPage = new Page<>(codeShareQueryDto.getPageNum(), codeShareQueryDto.getPageSize());
-        LambdaQueryWrapper<CodeShareInfo> queryWrapper = new LambdaQueryWrapper<>();
-        // 根据查询类型,拼接数据条件
-
-        // 过滤只能看到自己的或者是公开的代码
-        BoolQuery.Builder bool1 = QueryBuilders.bool();
-        List<Query> authQueryList = new ArrayList<>();
-        authQueryList.add(QueryBuilders.match(m -> m.field("visibility").query("public")));
-        authQueryList.add(QueryBuilders.match(m -> m.field("userId").query(StpUtil.getLoginIdAsLong())));
-        bool1.should(authQueryList);
-
-        // 构建查询条件列表
-        BoolQuery.Builder bool2 = QueryBuilders.bool();
-        List<Query> conditionQueryList = new ArrayList<>();
-        if (StrUtil.isNotEmpty(codeShareQueryDto.getContent())) {
-            conditionQueryList.add(QueryBuilders.fuzzy(f -> f.field("codeShareFileList.content").value(codeShareQueryDto.getContent()).fuzziness("AUTO")));
-        }
-        if (StrUtil.isNotEmpty(codeShareQueryDto.getDescription())) {
-            conditionQueryList.add(QueryBuilders.fuzzy(f -> f.field("description").value(codeShareQueryDto.getDescription()).fuzziness("AUTO")));
-        }
-        if (StrUtil.isNotEmpty(codeShareQueryDto.getTitle())) {
-            conditionQueryList.add(QueryBuilders.fuzzy(f -> f.field("title").value(codeShareQueryDto.getTitle()).fuzziness("AUTO")));
-        }
-        bool2.must(conditionQueryList);
-
-        BoolQuery.Builder bool = QueryBuilders.bool();
-        bool.must(m -> m.bool(bool1.build())).must(m -> m.bool(bool2.build()));
-        // 构建查询请求
-        SearchRequest request = SearchRequest.of(s -> s
-                .index("code-share")
-                .query(bool.build()._toQuery())
-                .from(codeShareQueryDto.getPageNum() - 1)  // 分页的起始位置
-                .size(codeShareQueryDto.getPageSize())  // 每页的记录数量
-        );
-
-        // 执行查询
-        SearchResponse<CodeShareInfoVo> searchResponse = elasticsearchClient.search(request, CodeShareInfoVo.class);
-        result.setTotal(searchResponse.hits().total().value());
-        result.setRows(searchResponse.hits().hits().stream().map(Hit::source).toList());
         return ResponseResult.success(result);
     }
 

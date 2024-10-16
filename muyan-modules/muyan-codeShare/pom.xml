@@ -31,12 +31,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!--es-->
-        <dependency>
-            <groupId>com.muyan</groupId>
-            <artifactId>muyan-common-es</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
