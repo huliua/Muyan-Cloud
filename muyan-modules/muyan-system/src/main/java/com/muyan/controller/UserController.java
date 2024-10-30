@@ -4,9 +4,11 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.ChangePasswordDto;
 import com.muyan.domain.dto.LoginDto;
+import com.muyan.domain.dto.RegisterDto;
 import com.muyan.domain.dto.UserUpdateDto;
 import com.muyan.domain.vo.LoginVo;
 import com.muyan.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -61,5 +63,11 @@ public class UserController {
             changePasswordDto.setId(StpUtil.getLoginIdAsLong());
         }
         return userService.changePassword(changePasswordDto);
+    }
+
+    @PostMapping("/register.do")
+    @Operation(summary = "注册用户信息")
+    public ResponseResult<String> register(@RequestBody RegisterDto registerDto) {
+        return userService.register(registerDto);
     }
 }

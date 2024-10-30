@@ -3,6 +3,7 @@ package com.muyan.service;
 import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.ChangePasswordDto;
 import com.muyan.domain.dto.LoginDto;
+import com.muyan.domain.dto.RegisterDto;
 import com.muyan.domain.dto.UserUpdateDto;
 import com.muyan.domain.vo.LoginVo;
 
@@ -23,4 +24,6 @@ public interface UserService {
     ResponseResult<LoginVo> updateUser(UserUpdateDto userUpdateDto);
 
     ResponseResult<String> changePassword(ChangePasswordDto changePasswordDto);
+
+    ResponseResult<String> register(RegisterDto registerDto);
 }

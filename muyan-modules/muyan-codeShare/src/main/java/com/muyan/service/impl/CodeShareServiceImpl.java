@@ -67,7 +67,7 @@ public class CodeShareServiceImpl implements CodeShareService {
 
             // 删除标签信息
             LambdaQueryWrapper<CodeShareTag> queryWrapper2 = new LambdaQueryWrapper<>();
-            queryWrapper.eq(CodeShareFile::getInfoId, codeShareDto.getCodeShareInfo().getId());
+            queryWrapper2.eq(CodeShareTag::getInfoId, codeShareDto.getCodeShareInfo().getId());
             codeShareTagMapper.delete(queryWrapper2);
         }
 
@@ -100,7 +100,9 @@ public class CodeShareServiceImpl implements CodeShareService {
         }
 
         // 新增tag数据
-        tagMapper.insertNotExists(codeShareDto.getTagList());
+        if (CollectionUtil.isNotEmpty(codeShareDto.getTagList())) {
+            tagMapper.insertNotExists(codeShareDto.getTagList());
+        }
 
         // 返回当前id
         return ResponseResult.success(String.valueOf(codeShareDto.getCodeShareInfo().getId()));
@@ -191,7 +193,7 @@ public class CodeShareServiceImpl implements CodeShareService {
         // 先删除代码信息(有权限控制)
         LambdaQueryWrapper<CodeShareInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(CodeShareInfo::getId, id);
-        queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getVisibility, "public").or().eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
+        queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
         int count = codeShareInfoMapper.delete(queryWrapper);
         if (count == 0) {
             return ResponseResult.fail("删除失败！");

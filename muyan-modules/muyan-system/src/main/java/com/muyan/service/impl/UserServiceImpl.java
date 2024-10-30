@@ -10,6 +10,7 @@ import com.muyan.constants.CommonConstants;
 import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.ChangePasswordDto;
 import com.muyan.domain.dto.LoginDto;
+import com.muyan.domain.dto.RegisterDto;
 import com.muyan.domain.dto.UserUpdateDto;
 import com.muyan.domain.entity.User;
 import com.muyan.domain.vo.LoginVo;
@@ -108,5 +109,33 @@ public class UserServiceImpl implements UserService {
         updateWrapper.eq("id", changePasswordDto.getId());
         userMapper.update(updateWrapper);
         return ResponseResult.success();
+    }
+
+    @Override
+    @Transactional
+    public ResponseResult<String> register(RegisterDto registerDto) {
+        if (StrUtil.hasEmpty(registerDto.getUsername(), registerDto.getNickname(), registerDto.getPassword())) {
+            return ResponseResult.fail("参数错误，请检查！");
+        }
+        // 验证密码和确认密码是否一致
+        if (!registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
+            return ResponseResult.fail("两次输入的密码不一致！");
+        }
+        // 验证账号是否已存在
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", registerDto.getUsername());
+        User user = userMapper.selectOne(queryWrapper);
+        if (Objects.nonNull(user)) {
+            return ResponseResult.fail("用户名已存在，请重新输入！");
+        }
+
+        // 插入用户信息
+        User newUser = BeanUtil.copyProperties(registerDto, User.class);
+        newUser.setPassword(BCrypt.hashpw(registerDto.getPassword(), BCrypt.gensalt()));
+        userMapper.insert(newUser);
+
+        // 插入用户角色关联信息，默认为普通用户
+        userRoleMapper.addUserRoleByRoleDm("user", newUser.getId());
+        return ResponseResult.success("注册成功！");
     }
 }
