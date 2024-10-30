@@ -29,6 +29,10 @@ public class LoginDto implements Serializable {
 
     private String password;
 
+    private String sex;
+
+    private String signature;
+
     /**
      * 记住我
      */

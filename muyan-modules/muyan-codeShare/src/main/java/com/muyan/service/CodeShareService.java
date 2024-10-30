@@ -8,6 +8,8 @@ import com.muyan.domain.dto.CodeShareInfoPageQueryDto;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
 
+import java.io.IOException;
+
 /**
  * @author huliua
  * @version 1.0
@@ -21,4 +23,8 @@ public interface CodeShareService {
     ResponseResult<String> operateCodeShareInfo(CodeShareInfoDto codeShareInfoDto);
 
     ResponseResult<CodeShareVo> getCodeShare(Long id);
+
+    ResponseResult<String> deleteCodeShare(Long id);
+
+    ResponseResult<PageResult<CodeShareInfoVo>> getCodesSearchList(CodeShareInfoPageQueryDto codeShareQueryDto) throws IOException;
 }

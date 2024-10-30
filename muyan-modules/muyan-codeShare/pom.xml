@@ -30,6 +30,7 @@
             <artifactId>muyan-common-redis</artifactId>
             <version>${project.version}</version>
         </dependency>
+
     </dependencies>
 
     <build>

@@ -124,6 +124,14 @@
             <artifactId>muyan-common-redis</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!--加密使用-->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-crypto</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

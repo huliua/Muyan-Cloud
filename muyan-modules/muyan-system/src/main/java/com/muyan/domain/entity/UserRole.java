@@ -1,4 +1,4 @@
-package com.muyan.entity;
+package com.muyan.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -10,15 +10,14 @@ import java.io.Serializable;
  *
  * @author huliua
  * @version 1.0
- * @date 2024-04-28 22:13
+ * @date 2024-04-28 22:12
  */
-@TableName("t_role_permission")
+@TableName("t_user_role")
 @Data
-public class RolePermission implements Serializable {
-
+public class UserRole implements Serializable {
     private Long id;
 
-    private Long roleId;
+    private Long userId;
 
-    private Long permissionId;
+    private Long roleId;
 }

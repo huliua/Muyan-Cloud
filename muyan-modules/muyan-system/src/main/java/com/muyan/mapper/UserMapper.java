@@ -1,7 +1,7 @@
 package com.muyan.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.muyan.entity.User;
+import com.muyan.domain.entity.User;
 
 /**
  * @author huliua

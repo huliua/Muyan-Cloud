@@ -6,8 +6,12 @@ import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.crypto.asymmetric.KeyType;
+import cn.hutool.crypto.asymmetric.RSA;
 import com.alibaba.fastjson.JSON;
 import com.muyan.api.UserApi;
+import com.muyan.config.EncryptConfig;
 import com.muyan.constant.RedisConstants;
 import com.muyan.constants.CommonConstants;
 import com.muyan.domain.ResponseResult;
@@ -33,6 +37,8 @@ public class AuthServiceImpl implements AuthService {
     private UserApi userApi;
     @Resource
     private RedisUtil redisUtil;
+    @Resource
+    private EncryptConfig encryptConfig;
 
     @Override
     public ResponseResult<LoginVo> login(LoginDto loginDto) {
@@ -42,8 +48,15 @@ public class AuthServiceImpl implements AuthService {
             return ResponseResult.fail(result.getMsg());
         }
         LoginDto userInDb = result.getData();
+
+        // 解密前端传递的密码
+        String password = loginDto.getPassword();
+        RSA rsa = new RSA(encryptConfig.getPrivateKey(), null);
+        byte[] decrypt = rsa.decrypt(password, KeyType.PrivateKey);
+        password = new String(decrypt, CharsetUtil.CHARSET_UTF_8);
+
         // 校验密码是否正确
-        boolean checkRes = BCrypt.checkpw(loginDto.getPassword(), userInDb.getPassword());
+        boolean checkRes = BCrypt.checkpw(password, userInDb.getPassword());
         if (!checkRes) {
             return ResponseResult.fail("账号或密码错误！");
         }

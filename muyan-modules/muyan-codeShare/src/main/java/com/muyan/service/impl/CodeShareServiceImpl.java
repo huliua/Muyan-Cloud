@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -49,6 +50,7 @@ public class CodeShareServiceImpl implements CodeShareService {
     @Resource
     private CodeShareFavoriteMapper codeShareFavoriteMapper;
 
+
     @Override
     @Transactional
     public ResponseResult<String> saveCodes(CodeShareDto codeShareDto) {
@@ -65,7 +67,7 @@ public class CodeShareServiceImpl implements CodeShareService {
 
             // 删除标签信息
             LambdaQueryWrapper<CodeShareTag> queryWrapper2 = new LambdaQueryWrapper<>();
-            queryWrapper.eq(CodeShareFile::getInfoId, codeShareDto.getCodeShareInfo().getId());
+            queryWrapper2.eq(CodeShareTag::getInfoId, codeShareDto.getCodeShareInfo().getId());
             codeShareTagMapper.delete(queryWrapper2);
         }
 
@@ -80,11 +82,11 @@ public class CodeShareServiceImpl implements CodeShareService {
         List<CodeShareTag> codeShareTagList = new ArrayList<>();
         if (codeShareDto.getTagList() != null) {
             codeShareDto.getTagList().forEach(tag -> {
-                String tagCode = tag.getTagCode();
+                String tagCode = tag.getCode();
                 if (StrUtil.isEmpty(tagCode)) {
                     // 生成tagCode
                     tagCode = IdUtil.fastUUID();
-                    tag.setTagCode(tagCode);
+                    tag.setCode(tagCode);
                 }
                 // 保存便签信息
                 CodeShareTag codeShareTag = new CodeShareTag();
@@ -98,9 +100,12 @@ public class CodeShareServiceImpl implements CodeShareService {
         }
 
         // 新增tag数据
-        tagMapper.insertNotExists(codeShareDto.getTagList());
+        if (CollectionUtil.isNotEmpty(codeShareDto.getTagList())) {
+            tagMapper.insertNotExists(codeShareDto.getTagList());
+        }
 
-        return ResponseResult.success();
+        // 返回当前id
+        return ResponseResult.success(String.valueOf(codeShareDto.getCodeShareInfo().getId()));
     }
 
     @Override
@@ -173,7 +178,7 @@ public class CodeShareServiceImpl implements CodeShareService {
         // 获取文件信息
         List<CodeShareFile> codeShareFileList = codeShareFileMapper.selectList(new LambdaQueryWrapper<CodeShareFile>().eq(CodeShareFile::getInfoId, id));
         // 获取标签信息
-        List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>().exists("select 1 from t_code_share_tag t where t.infoId={0} and t.tagCode=t_tag.tagCode", id));
+        List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>().exists("select 1 from t_code_share_tag t where t.infoId={0} and t.tagCode=t_tag.code", id));
 
         CodeShareVo codeShareVo = new CodeShareVo();
         codeShareVo.setCodeShareInfoVo(BeanUtil.copyProperties(codeShareInfo, CodeShareInfoVo.class));
@@ -181,6 +186,31 @@ public class CodeShareServiceImpl implements CodeShareService {
         codeShareVo.setTagList(tagList);
 
         return ResponseResult.success(codeShareVo);
+    }
+
+    @Override
+    public ResponseResult<String> deleteCodeShare(Long id) {
+        // 先删除代码信息(有权限控制)
+        LambdaQueryWrapper<CodeShareInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CodeShareInfo::getId, id);
+        queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
+        int count = codeShareInfoMapper.delete(queryWrapper);
+        if (count == 0) {
+            return ResponseResult.fail("删除失败！");
+        }
+        // 删除代码文件信息
+        codeShareFileMapper.delete(new LambdaQueryWrapper<CodeShareFile>().eq(CodeShareFile::getInfoId, id));
+        // 删除标签信息
+        codeShareTagMapper.delete(new LambdaQueryWrapper<CodeShareTag>().eq(CodeShareTag::getInfoId, id));
+        // 删除收藏信息
+        codeShareFavoriteMapper.delete(new LambdaQueryWrapper<CodeShareFavorite>().eq(CodeShareFavorite::getCodeInfoId, id));
+        return ResponseResult.success();
+    }
+
+    @Override
+    public ResponseResult<PageResult<CodeShareInfoVo>> getCodesSearchList(CodeShareInfoPageQueryDto codeShareQueryDto) throws IOException {
+        PageResult<CodeShareInfoVo> result = new PageResult<>();
+        return ResponseResult.success(result);
     }
 
     private void operateFavorite(Long codeInfoId, boolean isFavorite) {

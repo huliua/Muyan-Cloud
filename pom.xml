@@ -14,6 +14,8 @@
         <module>muyan-common</module>
         <module>muyan-modules</module>
         <module>muyan-api</module>
+        <module>muyan-common/muyan-common-es</module>
+        <module>muyan-common/muyan-common-mq</module>
     </modules>
 
     <properties>
