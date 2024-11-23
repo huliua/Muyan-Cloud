@@ -1,11 +1,14 @@
 package com.muyan.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 用户信息
@@ -31,6 +34,7 @@ public class User implements Serializable {
 
     private String email;
 
+    @TableField(fill = FieldFill.INSERT, value = "1")
     private String status;
 
     private String sex;
@@ -40,4 +44,16 @@ public class User implements Serializable {
     private String signature;
 
     private Integer deleted;
+
+    @TableField(fill = FieldFill.INSERT)
+    private Date createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private Date updateTime;
+
+    @TableField(fill = FieldFill.INSERT)
+    private Long createUser;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private Long updateUser;
 }

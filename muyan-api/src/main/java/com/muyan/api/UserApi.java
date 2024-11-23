@@ -2,6 +2,7 @@ package com.muyan.api;
 
 import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.LoginDto;
+import com.muyan.domain.dto.RegisterDto;
 import com.muyan.fallback.UserApiFallback;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,4 +26,7 @@ public interface UserApi {
 
     @PostMapping("/user/getUserRole")
     public ResponseResult<List<String>> getUserRole(@RequestBody Long userId);
+
+    @PostMapping("/user/register")
+    public ResponseResult<String> register(@RequestBody RegisterDto registerDto);
 }

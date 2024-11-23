@@ -14,15 +14,12 @@ public class MyMetaObjectHandler extends CustomMetaObjectHandler {
 
     @Override
     public void setInsertFill(MetaObject metaObject) {
-        // 如果包含某个字段的getter，则自动赋值
+        // 如果包含某个字段的setter，则赋值
         if (metaObject.hasSetter("createUser") && StpUtil.isLogin()) {
             metaObject.setValue("createUser", StpUtil.getLoginIdAsLong());
         }
         if (metaObject.hasSetter("updateUser") && StpUtil.isLogin()) {
             metaObject.setValue("updateUser", StpUtil.getLoginIdAsLong());
-        }
-        if (metaObject.hasSetter("userId") && StpUtil.isLogin()) {
-            metaObject.setValue("userId", StpUtil.getLoginIdAsLong());
         }
         if (metaObject.hasSetter("createTime")) {
             metaObject.setValue("createTime", new Date());
@@ -34,7 +31,7 @@ public class MyMetaObjectHandler extends CustomMetaObjectHandler {
 
     @Override
     public void setUpdateFill(MetaObject metaObject) {
-        // 如果包含某个字段的getter，则自动赋值
+        // 如果包含某个字段的setter，则赋值
         if (metaObject.hasSetter("updateUser") && StpUtil.isLogin()) {
             metaObject.setValue("updateUser", StpUtil.getLoginIdAsLong());
         }

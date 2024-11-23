@@ -15,6 +15,11 @@ public class RedisConstants {
     public static final String USER_KEY_PREFIX = "user:";
 
     /**
+     * 记住我的key的前缀
+     */
+    public static final String REMEMBER_ME_KEY_PREFIX = "rememberMe:";
+
+    /**
      * 角色信息Key的前缀
      */
     public static final String ROLE_KEY_PREFIX = "role:";

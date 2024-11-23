@@ -10,4 +10,7 @@ public class CommonConstants {
 
     public static final int SUCCESS_CODE = 200;
     public static final int FAIL_CODE = 500;
+
+    public static final String YES = "1";
+    public static final String NO = "0";
 }

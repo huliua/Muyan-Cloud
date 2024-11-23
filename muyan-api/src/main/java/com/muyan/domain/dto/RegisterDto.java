@@ -29,6 +29,4 @@ public class RegisterDto {
     private String sex;
 
     private String signature;
-
-    private String avatar;
 }

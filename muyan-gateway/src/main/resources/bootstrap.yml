@@ -4,7 +4,7 @@ spring:
   application:
     name: muyan-gateway
   profiles:
-    active: dev
+    active: prod,security
   cloud:
     nacos:
       discovery:

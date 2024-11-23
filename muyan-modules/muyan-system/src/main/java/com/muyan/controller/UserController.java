@@ -11,6 +11,7 @@ import com.muyan.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,14 +59,14 @@ public class UserController {
     }
 
     @PostMapping("/changePassword")
-    public ResponseResult<String> changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
+    public ResponseResult<String> changePassword(@Valid @RequestBody ChangePasswordDto changePasswordDto) {
         if (!StpUtil.hasRole("admin") || Objects.isNull(changePasswordDto.getId())) {
             changePasswordDto.setId(StpUtil.getLoginIdAsLong());
         }
         return userService.changePassword(changePasswordDto);
     }
 
-    @PostMapping("/register.do")
+    @PostMapping("/register")
     @Operation(summary = "注册用户信息")
     public ResponseResult<String> register(@RequestBody RegisterDto registerDto) {
         return userService.register(registerDto);

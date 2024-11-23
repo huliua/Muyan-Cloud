@@ -90,9 +90,9 @@ public class CodeShareController {
         return codeShareService.getCodeShare(id);
     }
 
-    @PostMapping("/deleteCodeShare")
+    @PostMapping("/deleteCodeShare/{id}")
     @Operation(summary = "删除代码")
-    public ResponseResult<String> deleteCodeShare(@PathParam("id") Long id) {
+    public ResponseResult<String> deleteCodeShare(@PathVariable("id") Long id) {
         return codeShareService.deleteCodeShare(id);
     }
 

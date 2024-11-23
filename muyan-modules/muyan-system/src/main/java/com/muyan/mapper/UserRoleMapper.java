@@ -3,6 +3,7 @@ package com.muyan.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.muyan.domain.entity.UserRole;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -18,5 +19,5 @@ public interface UserRoleMapper extends BaseMapper<UserRole> {
     List<String> selectByUserId(Long userId);
 
     @Insert("insert into t_user_role(user_id, role_id)select #{userId}, id from t_role where dm=#{roleDm} ")
-    int addUserRoleByRoleDm(String roleDm, Long userId);
+    void addUserRoleByRoleDm(@Param("roleDm") String roleDm, @Param("userId") Long userId);
 }

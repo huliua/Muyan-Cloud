@@ -5,7 +5,7 @@ spring:
     name: muyan-codeShare
 
   profiles:
-    active: dev
+    active: prod,security
 
   cloud:
     nacos:
@@ -20,3 +20,5 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  batchInsert:
+    enable: true

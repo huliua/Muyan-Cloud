@@ -3,6 +3,7 @@ package com.muyan.fallback;
 import com.muyan.api.UserApi;
 import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.LoginDto;
+import com.muyan.domain.dto.RegisterDto;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +34,11 @@ public class UserApiFallback implements FallbackFactory<UserApi> {
 
             @Override
             public ResponseResult<List<String>> getUserRole(Long userId) {
+                return ResponseResult.fail(cause.getMessage());
+            }
+
+            @Override
+            public ResponseResult<String> register(RegisterDto registerDto) {
                 return ResponseResult.fail(cause.getMessage());
             }
         };

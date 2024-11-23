@@ -5,6 +5,7 @@ import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.muyan.block.UserApiBlock;
 import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.LoginDto;
+import com.muyan.domain.dto.RegisterDto;
 import com.muyan.domain.vo.LoginVo;
 import com.muyan.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,12 +38,19 @@ public class AuthController {
         return authService.login(loginDto);
     }
 
+    @PostMapping("/register")
+    @Operation(summary = "注册接口")
+    @SentinelResource(value = "/auth/register", blockHandlerClass = UserApiBlock.class, blockHandler = "getUserBlockHandler")
+    public ResponseResult<String> register(@Parameter(name = "登录信息") @RequestBody RegisterDto registerDto) {
+        return authService.register(registerDto);
+    }
+
     @PostMapping("/logout")
     @Operation(summary = "登出接口")
     @SentinelResource(value = "/auth/logout", blockHandlerClass = UserApiBlock.class, blockHandler = "getUserBlockHandler")
-    public ResponseResult logout() {
+    public ResponseResult<String> logout() {
         StpUtil.logout();
-        return ResponseResult.success();
+        return ResponseResult.success("退出成功");
     }
 
     @GetMapping("/getLoginStatus")

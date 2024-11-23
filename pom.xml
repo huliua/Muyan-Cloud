@@ -34,7 +34,7 @@
         <spring-cloud-loadbalancer.version>4.1.1</spring-cloud-loadbalancer.version>
         <swagger-fox.version>3.0.0</swagger-fox.version>
         <hutool.version>5.8.27</hutool.version>
-        <druid.version>1.1.20</druid.version>
+        <druid.version>1.2.23</druid.version>
         <mybatis-plus.version>3.5.6</mybatis-plus.version>
         <mysql.version>8.0.11</mysql.version>
         <saToken.version>1.37.0</saToken.version>

@@ -18,6 +18,7 @@ import com.muyan.mapper.RolePermissionMapper;
 import com.muyan.mapper.UserMapper;
 import com.muyan.mapper.UserRoleMapper;
 import com.muyan.service.UserService;
+import com.muyan.utils.EncodeUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,8 @@ public class UserServiceImpl implements UserService {
     private UserRoleMapper userRoleMapper;
     @Resource
     private RolePermissionMapper rolePermissionMapper;
+    @Resource
+    private EncodeUtils encodeUtils;
 
     @Override
     public ResponseResult<LoginDto> getUser(LoginDto loginDto) {
@@ -94,18 +97,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseResult<String> changePassword(ChangePasswordDto changePasswordDto) {
+        String oldPassword = encodeUtils.decode(changePasswordDto.getOldPassword());
+        String newPassword = encodeUtils.decode(changePasswordDto.getNewPassword());
+        String confirmPassword = encodeUtils.decode(changePasswordDto.getConfirmPassword());
+        if (!StrUtil.equals(newPassword, confirmPassword)) {
+            return ResponseResult.fail("新密码和确认密码不一致，请重新输入！");
+        }
+        if (StrUtil.equals(newPassword, oldPassword)) {
+            return ResponseResult.fail("新密码不能和原密码一致！");
+        }
+
         // 先获取用户信息，比对密码是否正确
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("id", changePasswordDto.getId());
         User user = userMapper.selectOne(queryWrapper);
-        boolean checkRes = BCrypt.checkpw(changePasswordDto.getOldPassword(), user.getPassword());
+        boolean checkRes = BCrypt.checkpw(oldPassword, user.getPassword());
         if (!checkRes) {
             return ResponseResult.fail("原密码不正确！");
         }
 
         // 更新密码
         UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.set("password", BCrypt.hashpw(changePasswordDto.getNewPassword(), BCrypt.gensalt()));
+        updateWrapper.set("password", BCrypt.hashpw(newPassword, BCrypt.gensalt()));
         updateWrapper.eq("id", changePasswordDto.getId());
         userMapper.update(updateWrapper);
         return ResponseResult.success();
@@ -114,13 +127,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public ResponseResult<String> register(RegisterDto registerDto) {
-        if (StrUtil.hasEmpty(registerDto.getUsername(), registerDto.getNickname(), registerDto.getPassword())) {
-            return ResponseResult.fail("参数错误，请检查！");
-        }
-        // 验证密码和确认密码是否一致
-        if (!registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
-            return ResponseResult.fail("两次输入的密码不一致！");
-        }
         // 验证账号是否已存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", registerDto.getUsername());

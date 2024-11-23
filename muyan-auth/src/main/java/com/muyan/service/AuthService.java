@@ -2,6 +2,7 @@ package com.muyan.service;
 
 import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.LoginDto;
+import com.muyan.domain.dto.RegisterDto;
 import com.muyan.domain.vo.LoginVo;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface AuthService {
     ResponseResult<List<String>> getPermissionList(Long userId);
 
     ResponseResult<LoginVo> getUserInfo();
+
+    ResponseResult<String> register(RegisterDto registerDto);
 }
