@@ -7,6 +7,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.muyan.constant.RedisConstants;
 import com.muyan.constants.CodeShareConstants;
 import com.muyan.domain.PageResult;
 import com.muyan.domain.ResponseResult;
@@ -20,6 +21,7 @@ import com.muyan.exception.ForbiddenException;
 import com.muyan.mapper.*;
 import com.muyan.service.CodeShareService;
 import com.muyan.utils.QueryUtils;
+import com.muyan.utils.RedisUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author huliua
@@ -49,6 +54,8 @@ public class CodeShareServiceImpl implements CodeShareService {
     private TagMapper tagMapper;
     @Resource
     private CodeShareFavoriteMapper codeShareFavoriteMapper;
+    @Resource
+    private RedisUtil redisUtil;
 
 
     @Override
@@ -102,6 +109,15 @@ public class CodeShareServiceImpl implements CodeShareService {
         // 新增tag数据
         if (CollectionUtil.isNotEmpty(codeShareDto.getTagList())) {
             tagMapper.insertNotExists(codeShareDto.getTagList());
+            // 删除redis中的缓存
+            redisUtil.del(StrUtil.concat(true, RedisConstants.DICT_KEY_PRE, "t_tag"));
+            // 创建延迟任务队列
+            ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+            // 提交延迟删除任务
+            executor.schedule(() -> {
+                log.info("开始延迟双删...");
+                redisUtil.del(StrUtil.concat(true, RedisConstants.DICT_KEY_PRE, "t_tag"));
+            }, 2000, TimeUnit.MILLISECONDS);
         }
 
         // 返回当前id

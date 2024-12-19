@@ -1,6 +1,7 @@
 package com.muyan.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.muyan.domain.entity.RolePermission;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -11,7 +12,7 @@ import java.util.List;
  * @version 1.0
  * @date 2024-04-28 22:15
  */
-public interface RolePermissionMapper extends BaseMapper<RolePermissionMapper> {
+public interface RolePermissionMapper extends BaseMapper<RolePermission> {
 
     @Select("select p.dm\n" +
             "from t_permission p\n" +
