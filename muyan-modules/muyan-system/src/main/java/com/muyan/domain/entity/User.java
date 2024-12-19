@@ -34,7 +34,7 @@ public class User implements Serializable {
 
     private String email;
 
-    @TableField(fill = FieldFill.INSERT, value = "1")
+    @TableField(fill = FieldFill.INSERT)
     private String status;
 
     private String sex;

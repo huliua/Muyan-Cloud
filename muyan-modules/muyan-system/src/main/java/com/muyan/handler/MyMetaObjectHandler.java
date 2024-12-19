@@ -27,6 +27,10 @@ public class MyMetaObjectHandler extends CustomMetaObjectHandler {
         if (metaObject.hasSetter("updateTime")) {
             metaObject.setValue("updateTime", new Date());
         }
+        // 默认状态为有效
+        if (metaObject.hasSetter("status")) {
+            metaObject.setValue("status", "1");
+        }
     }
 
     @Override
