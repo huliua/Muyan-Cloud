@@ -65,6 +65,12 @@ public class CodeShareServiceImpl implements CodeShareService {
         if (codeShareDto.getCodeShareInfo().getId() == null) {
             codeShareInfoMapper.insert(codeShareDto.getCodeShareInfo());
         } else {
+            // 判断是否有权限修改
+            Long count = codeShareInfoMapper.selectCount(new LambdaQueryWrapper<CodeShareInfo>().eq(CodeShareInfo::getId, codeShareDto.getCodeShareInfo().getId()).eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
+            if (null == count || count == 0L) {
+                return ResponseResult.fail(403, "您没有权限操作该数据");
+            }
+
             codeShareInfoMapper.updateById(codeShareDto.getCodeShareInfo());
 
             // 删除文件信息
