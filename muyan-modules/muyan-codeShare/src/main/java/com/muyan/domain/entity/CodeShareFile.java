@@ -36,4 +36,6 @@ public class CodeShareFile implements Serializable {
     private String type;
 
     private String content;
+
+    private Integer sort;
 }
