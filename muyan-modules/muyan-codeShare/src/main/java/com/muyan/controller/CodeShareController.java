@@ -8,8 +8,11 @@ import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.CodeShareDto;
 import com.muyan.domain.dto.CodeShareInfoDto;
 import com.muyan.domain.dto.CodeShareInfoPageQueryDto;
+import com.muyan.domain.entity.Share;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
+import com.muyan.domain.vo.ShareExtVo;
+import com.muyan.domain.vo.ShareVo;
 import com.muyan.service.CodeShareService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -108,5 +111,21 @@ public class CodeShareController {
         // 获取token信息
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
         return ResponseResult.success(tokenInfo.getTokenValue());
+    }
+
+    @PostMapping("/createShare")
+    public ResponseResult<ShareVo> createShare(@RequestBody Share share) {
+        return codeShareService.createShare(share);
+    }
+
+    // 获取分享的信息，比如是否需要密码，是否过期
+    @PostMapping("/share/{shareId}")
+    public ResponseResult<ShareExtVo> getShareInfo(@PathVariable Long shareId) {
+        return codeShareService.getShareInfo(shareId);
+    }
+
+    @PostMapping("/getShareCode/{shareId}")
+    public ResponseResult<CodeShareVo> getShareCode(@PathVariable Long shareId, String password) {
+        return codeShareService.getShareCode(shareId, password);
     }
 }

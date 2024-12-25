@@ -5,8 +5,11 @@ import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.CodeShareDto;
 import com.muyan.domain.dto.CodeShareInfoDto;
 import com.muyan.domain.dto.CodeShareInfoPageQueryDto;
+import com.muyan.domain.entity.Share;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
+import com.muyan.domain.vo.ShareExtVo;
+import com.muyan.domain.vo.ShareVo;
 
 import java.io.IOException;
 
@@ -27,4 +30,10 @@ public interface CodeShareService {
     ResponseResult<String> deleteCodeShare(Long id);
 
     ResponseResult<PageResult<CodeShareInfoVo>> getCodesSearchList(CodeShareInfoPageQueryDto codeShareQueryDto) throws IOException;
+
+    ResponseResult<ShareVo> createShare(Share share);
+
+    ResponseResult<CodeShareVo> getShareCode(Long shareId, String password);
+
+    ResponseResult<ShareExtVo> getShareInfo(Long shareId);
 }

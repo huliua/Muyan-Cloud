@@ -37,6 +37,8 @@ public class SaTokenConfigure {
                 .addInclude("/**")
                 // 开放地址
                 .addExclude("/favicon.ico")
+                // 代码分享信息需要放行，免登录查看
+                .addExclude("/codeShare/share/**", "/codeShare/getShareCode/**")
                 // 鉴权方法：每次访问进入
                 .setAuth(obj -> {
                     // 登录校验 -- 拦截所有路由，并排除/auth/login 用于开放登录

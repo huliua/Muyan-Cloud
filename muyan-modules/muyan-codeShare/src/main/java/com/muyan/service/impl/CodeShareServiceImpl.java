@@ -1,5 +1,6 @@
 package com.muyan.service.impl;
 
+import cn.dev33.satoken.secure.BCrypt;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
@@ -14,12 +15,16 @@ import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.CodeShareDto;
 import com.muyan.domain.dto.CodeShareInfoDto;
 import com.muyan.domain.dto.CodeShareInfoPageQueryDto;
+import com.muyan.domain.dto.ExpireEnum;
 import com.muyan.domain.entity.*;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
+import com.muyan.domain.vo.ShareExtVo;
+import com.muyan.domain.vo.ShareVo;
 import com.muyan.exception.ForbiddenException;
 import com.muyan.mapper.*;
 import com.muyan.service.CodeShareService;
+import com.muyan.utils.EncodeUtils;
 import com.muyan.utils.QueryUtils;
 import com.muyan.utils.RedisUtil;
 import jakarta.annotation.Resource;
@@ -28,9 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -50,12 +53,17 @@ public class CodeShareServiceImpl implements CodeShareService {
     private CodeShareFileMapper codeShareFileMapper;
     @Resource
     private CodeShareTagMapper codeShareTagMapper;
+
     @Resource
     private TagMapper tagMapper;
     @Resource
     private CodeShareFavoriteMapper codeShareFavoriteMapper;
     @Resource
     private RedisUtil redisUtil;
+    @Resource
+    private ShareMapper shareMapper;
+    @Resource
+    private EncodeUtils encodeUtils;
 
 
     @Override
@@ -191,7 +199,12 @@ public class CodeShareServiceImpl implements CodeShareService {
         // 先获取代码信息(有权限控制)
         LambdaQueryWrapper<CodeShareInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(CodeShareInfo::getId, id);
-        queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getVisibility, "public").or().eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
+        if (StpUtil.isLogin()) {
+            queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getVisibility, "public").or().eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
+        } else {
+            // 未登录，只有代码被分享的时候才会进入
+            queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getVisibility, "public"));
+        }
         CodeShareInfo codeShareInfo = codeShareInfoMapper.selectOne(queryWrapper);
         if (Objects.isNull(codeShareInfo)) {
             return ResponseResult.fail("未查询到代码信息,或没有查询权限!");
@@ -226,6 +239,8 @@ public class CodeShareServiceImpl implements CodeShareService {
         codeShareTagMapper.delete(new LambdaQueryWrapper<CodeShareTag>().eq(CodeShareTag::getInfoId, id));
         // 删除收藏信息
         codeShareFavoriteMapper.delete(new LambdaQueryWrapper<CodeShareFavorite>().eq(CodeShareFavorite::getCodeInfoId, id));
+        // 删除分享信息
+        shareMapper.delete(new LambdaQueryWrapper<Share>().eq(Share::getCodeId, id));
         return ResponseResult.success();
     }
 
@@ -233,6 +248,67 @@ public class CodeShareServiceImpl implements CodeShareService {
     public ResponseResult<PageResult<CodeShareInfoVo>> getCodesSearchList(CodeShareInfoPageQueryDto codeShareQueryDto) throws IOException {
         PageResult<CodeShareInfoVo> result = new PageResult<>();
         return ResponseResult.success(result);
+    }
+
+    @Override
+    public ResponseResult<ShareVo> createShare(Share share) {
+        // 参数校验
+        if (Objects.isNull(share.getCodeId()) || Objects.isNull(share.getExpire())) {
+            return ResponseResult.fail("参数错误!");
+        }
+        // 处理密码
+        if (StrUtil.isNotEmpty(share.getPassword())) {
+            String plainPwd = encodeUtils.decode(share.getPassword());
+            share.setPassword(BCrypt.hashpw(plainPwd, BCrypt.gensalt()));
+        }
+        // 计算出过期时间,永久时间为null
+        if (share.getExpire() != ExpireEnum.NoLimit) {
+            Calendar instance = Calendar.getInstance();
+            instance.add(Calendar.DATE, share.getExpire().getCode());
+            share.setExpireTime(instance.getTime());
+        }
+        // 插入数据库
+        shareMapper.insert(share);
+
+        // 封装返回结果
+        ShareVo shareVo = new ShareVo();
+        shareVo.setShareId(share.getId());
+        shareVo.setExpireTime(share.getExpireTime());
+        return ResponseResult.success(shareVo);
+    }
+
+    @Override
+    public ResponseResult<ShareExtVo> getShareInfo(Long shareId) {
+        Share share = shareMapper.selectById(shareId);
+        ShareExtVo shareExtVo = new ShareExtVo();
+        if (Objects.isNull(share)) {
+            return ResponseResult.fail("分享信息不存在！");
+        }
+        shareExtVo.setIsExpire(share.getExpireTime() != null && share.getExpireTime().before(new Date()));
+        shareExtVo.setNeedPassword(StrUtil.isNotEmpty(share.getPassword()));
+        return ResponseResult.success(shareExtVo);
+    }
+
+    @Override
+    public ResponseResult<CodeShareVo> getShareCode(Long shareId, String password) {
+        // 获取分享信息
+        Share share = shareMapper.selectById(shareId);
+        if (Objects.isNull(share)) {
+            return ResponseResult.fail("分享信息不存在!");
+        }
+        if (share.getExpireTime() != null && share.getExpireTime().before(new Date())) {
+            return ResponseResult.fail("分享已过期!");
+        }
+        if (share.getPassword() != null) {
+            if (StrUtil.isEmpty(password)) {
+                return ResponseResult.fail("请输入密码!");
+            }
+            if (!BCrypt.checkpw(encodeUtils.decode(password), share.getPassword())) {
+                return ResponseResult.fail("密码错误!");
+            }
+        }
+        // 返回代码信息
+        return getCodeShare(share.getCodeId());
     }
 
     private void operateFavorite(Long codeInfoId, boolean isFavorite) {
