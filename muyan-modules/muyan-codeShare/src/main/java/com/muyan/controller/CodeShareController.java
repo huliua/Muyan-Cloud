@@ -8,6 +8,7 @@ import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.CodeShareDto;
 import com.muyan.domain.dto.CodeShareInfoDto;
 import com.muyan.domain.dto.CodeShareInfoPageQueryDto;
+import com.muyan.domain.dto.ShareInfoRequest;
 import com.muyan.domain.entity.Share;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
@@ -125,7 +126,7 @@ public class CodeShareController {
     }
 
     @PostMapping("/getShareCode/{shareId}")
-    public ResponseResult<CodeShareVo> getShareCode(@PathVariable Long shareId, String password) {
-        return codeShareService.getShareCode(shareId, password);
+    public ResponseResult<CodeShareVo> getShareCode(@PathVariable Long shareId, @RequestBody ShareInfoRequest shareInfoRequest) {
+        return codeShareService.getShareCode(shareId, shareInfoRequest.getPassword());
     }
 }

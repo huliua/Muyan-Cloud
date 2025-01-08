@@ -199,12 +199,8 @@ public class CodeShareServiceImpl implements CodeShareService {
         // 先获取代码信息(有权限控制)
         LambdaQueryWrapper<CodeShareInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(CodeShareInfo::getId, id);
-        if (StpUtil.isLogin()) {
-            queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getVisibility, "public").or().eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
-        } else {
-            // 未登录，只有代码被分享的时候才会进入
-            queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getVisibility, "public"));
-        }
+        queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getVisibility, "public").or().eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
+
         CodeShareInfo codeShareInfo = codeShareInfoMapper.selectOne(queryWrapper);
         if (Objects.isNull(codeShareInfo)) {
             return ResponseResult.fail("未查询到代码信息,或没有查询权限!");
@@ -258,8 +254,7 @@ public class CodeShareServiceImpl implements CodeShareService {
         }
         // 处理密码
         if (StrUtil.isNotEmpty(share.getPassword())) {
-            String plainPwd = encodeUtils.decode(share.getPassword());
-            share.setPassword(BCrypt.hashpw(plainPwd, BCrypt.gensalt()));
+            share.setPassword(BCrypt.hashpw(share.getPassword(), BCrypt.gensalt()));
         }
         // 计算出过期时间,永久时间为null
         if (share.getExpire() != ExpireEnum.NoLimit) {
@@ -303,7 +298,7 @@ public class CodeShareServiceImpl implements CodeShareService {
             if (StrUtil.isEmpty(password)) {
                 return ResponseResult.fail("请输入密码!");
             }
-            if (!BCrypt.checkpw(encodeUtils.decode(password), share.getPassword())) {
+            if (!BCrypt.checkpw(password, share.getPassword())) {
                 return ResponseResult.fail("密码错误!");
             }
         }

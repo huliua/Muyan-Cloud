@@ -7,13 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName(value = "t_code_share")
-public class Share {
+public class Share implements Serializable {
 
     @TableId
     private Long id;
@@ -22,20 +23,19 @@ public class Share {
 
     private String password;
 
-    @EnumValue
     private ExpireEnum expire;
 
     private Date expireTime;
 
     @TableField(fill = FieldFill.INSERT)
-    private String createUser;
+    private Long createUser;
 
     @TableField(fill = FieldFill.INSERT)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String updateUser;
+    private Long updateUser;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
