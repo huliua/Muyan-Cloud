@@ -34,6 +34,11 @@ public class RedisConstants {
      */
     public static final String DICT_KEY_PRE = "dict:";
 
+    /**
+     * 代码分享的accessToken的前缀
+     */
+    public static final String CODE_SHARE_ACCESS_TOKEN_KEY_PREFIX = "codeShare:accessToken:";
+
 
     /**
      * 过期时间，单位为秒

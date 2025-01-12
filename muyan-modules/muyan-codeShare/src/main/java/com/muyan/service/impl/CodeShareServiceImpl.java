@@ -12,10 +12,7 @@ import com.muyan.constant.RedisConstants;
 import com.muyan.constants.CodeShareConstants;
 import com.muyan.domain.PageResult;
 import com.muyan.domain.ResponseResult;
-import com.muyan.domain.dto.CodeShareDto;
-import com.muyan.domain.dto.CodeShareInfoDto;
-import com.muyan.domain.dto.CodeShareInfoPageQueryDto;
-import com.muyan.domain.dto.ExpireEnum;
+import com.muyan.domain.dto.*;
 import com.muyan.domain.entity.*;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
@@ -195,11 +192,20 @@ public class CodeShareServiceImpl implements CodeShareService {
     }
 
     @Override
-    public ResponseResult<CodeShareVo> getCodeShare(Long id) {
-        // 先获取代码信息(有权限控制)
+    public ResponseResult<CodeShareVo> getCodeShare(Long id, String accessToken) {
+        // 先获取代码信息
         LambdaQueryWrapper<CodeShareInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(CodeShareInfo::getId, id);
-        queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getVisibility, "public").or().eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
+
+        // 如果是根据accessToken访问，则需要判断redis中是否存在该token
+        if (StrUtil.isNotEmpty(accessToken)) {
+            if (!redisUtil.hasKey(RedisConstants.CODE_SHARE_ACCESS_TOKEN_KEY_PREFIX + id + ":" + StpUtil.getLoginIdAsString())) {
+                return ResponseResult.fail("访问信息已过期!");
+            }
+        } else {
+            // 否则就只能查询当前登录用户可见的数据
+            queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getVisibility, "public").or().eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
+        }
 
         CodeShareInfo codeShareInfo = codeShareInfoMapper.selectOne(queryWrapper);
         if (Objects.isNull(codeShareInfo)) {
@@ -262,7 +268,10 @@ public class CodeShareServiceImpl implements CodeShareService {
             instance.add(Calendar.DATE, share.getExpire().getCode());
             share.setExpireTime(instance.getTime());
         }
-        // 插入数据库
+        // 先删除当前代码的其他分享信息
+        shareMapper.delete(new LambdaQueryWrapper<Share>().eq(Share::getCodeId, share.getCodeId()));
+
+        // 插入新的分享信息
         shareMapper.insert(share);
 
         // 封装返回结果
@@ -285,7 +294,7 @@ public class CodeShareServiceImpl implements CodeShareService {
     }
 
     @Override
-    public ResponseResult<CodeShareVo> getShareCode(Long shareId, String password) {
+    public ResponseResult<ShareInfoResponse> getShareCode(Long shareId, String password) {
         // 获取分享信息
         Share share = shareMapper.selectById(shareId);
         if (Objects.isNull(share)) {
@@ -302,8 +311,20 @@ public class CodeShareServiceImpl implements CodeShareService {
                 return ResponseResult.fail("密码错误!");
             }
         }
-        // 返回代码信息
-        return getCodeShare(share.getCodeId());
+        // 生成token
+        String accessToken = StrUtil.uuid();
+        ShareInfoResponse shareInfoResponse = new ShareInfoResponse(share.getCodeId(), accessToken);
+
+        // 将token存入redis中(key过期时间计算方式: 默认30分钟, 如果分享信息有过期时间,则取两者中较小的作为过期时间)
+        long tokenExpireTime = RedisConstants.EXPIRE_TIME;
+        if (share.getExpireTime() != null) {
+            long expireTime = (share.getExpireTime().getTime() - System.currentTimeMillis()) / 1000;
+            // 获取其中较小的作为过期时间
+            tokenExpireTime = Math.min(tokenExpireTime, expireTime);
+        }
+        redisUtil.set(RedisConstants.CODE_SHARE_ACCESS_TOKEN_KEY_PREFIX + share.getCodeId() + ":" + StpUtil.getLoginIdAsString(), "1", tokenExpireTime);
+
+        return ResponseResult.success(shareInfoResponse);
     }
 
     private void operateFavorite(Long codeInfoId, boolean isFavorite) {

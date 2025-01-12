@@ -1,6 +1,7 @@
 import com.muyan.CodeShareApplication;
 import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.ExpireEnum;
+import com.muyan.domain.dto.ShareInfoResponse;
 import com.muyan.domain.entity.Share;
 import com.muyan.domain.vo.CodeShareVo;
 import com.muyan.domain.vo.ShareExtVo;
@@ -32,7 +33,7 @@ public class ShareTest {
         ResponseResult<ShareExtVo> shareInfo = codeShareService.getShareInfo(1871568534214975489L);
         log.info("响应结果:{}", shareInfo);
 
-        ResponseResult<CodeShareVo> shareCode = codeShareService.getShareCode(1871568534214975489L, null);
+        ResponseResult<ShareInfoResponse> shareCode = codeShareService.getShareCode(1871568534214975489L, null);
         log.info("响应结果:{}", shareCode);
     }
 }

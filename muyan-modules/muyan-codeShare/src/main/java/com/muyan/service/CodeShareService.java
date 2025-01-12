@@ -5,6 +5,7 @@ import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.CodeShareDto;
 import com.muyan.domain.dto.CodeShareInfoDto;
 import com.muyan.domain.dto.CodeShareInfoPageQueryDto;
+import com.muyan.domain.dto.ShareInfoResponse;
 import com.muyan.domain.entity.Share;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
@@ -25,7 +26,7 @@ public interface CodeShareService {
 
     ResponseResult<String> operateCodeShareInfo(CodeShareInfoDto codeShareInfoDto);
 
-    ResponseResult<CodeShareVo> getCodeShare(Long id);
+    ResponseResult<CodeShareVo> getCodeShare(Long id, String accessToken);
 
     ResponseResult<String> deleteCodeShare(Long id);
 
@@ -33,7 +34,7 @@ public interface CodeShareService {
 
     ResponseResult<ShareVo> createShare(Share share);
 
-    ResponseResult<CodeShareVo> getShareCode(Long shareId, String password);
+    ResponseResult<ShareInfoResponse> getShareCode(Long shareId, String password);
 
     ResponseResult<ShareExtVo> getShareInfo(Long shareId);
 }

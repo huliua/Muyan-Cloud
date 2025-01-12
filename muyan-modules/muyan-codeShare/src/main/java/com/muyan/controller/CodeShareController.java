@@ -5,10 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.muyan.constants.CodeShareConstants;
 import com.muyan.domain.PageResult;
 import com.muyan.domain.ResponseResult;
-import com.muyan.domain.dto.CodeShareDto;
-import com.muyan.domain.dto.CodeShareInfoDto;
-import com.muyan.domain.dto.CodeShareInfoPageQueryDto;
-import com.muyan.domain.dto.ShareInfoRequest;
+import com.muyan.domain.dto.*;
 import com.muyan.domain.entity.Share;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
@@ -18,7 +15,6 @@ import com.muyan.service.CodeShareService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import jakarta.websocket.server.PathParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,8 +86,8 @@ public class CodeShareController {
      */
     @PostMapping("/getCodeShare/{id}")
     @Operation(summary = "查询代码详情")
-    public ResponseResult<CodeShareVo> getCodeShare(@PathVariable("id") Long id) {
-        return codeShareService.getCodeShare(id);
+    public ResponseResult<CodeShareVo> getCodeShare(@PathVariable("id") Long id, @RequestBody AccessTokenRequest accessToken) {
+        return codeShareService.getCodeShare(id, accessToken.getAccessToken());
     }
 
     @PostMapping("/deleteCodeShare/{id}")
@@ -126,7 +122,7 @@ public class CodeShareController {
     }
 
     @PostMapping("/getShareCode/{shareId}")
-    public ResponseResult<CodeShareVo> getShareCode(@PathVariable Long shareId, @RequestBody ShareInfoRequest shareInfoRequest) {
+    public ResponseResult<ShareInfoResponse> getShareCode(@PathVariable Long shareId, @RequestBody ShareInfoRequest shareInfoRequest) {
         return codeShareService.getShareCode(shareId, shareInfoRequest.getPassword());
     }
 }
