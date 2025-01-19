@@ -156,12 +156,14 @@ public class CodeShareServiceImpl implements CodeShareService {
         if (CollectionUtil.isNotEmpty(codeShareQueryDto.getCreateTime())) {
             queryWrapper.between(CodeShareInfo::getCreateTime, codeShareQueryDto.getCreateTime().get(0), codeShareQueryDto.getCreateTime().get(1));
         }
+        if (CollectionUtil.isNotEmpty(codeShareQueryDto.getUpdateTime())) {
+            queryWrapper.between(CodeShareInfo::getUpdateTime, codeShareQueryDto.getUpdateTime().get(0), codeShareQueryDto.getUpdateTime().get(1));
+        }
         queryWrapper.like(StrUtil.isNotEmpty(codeShareQueryDto.getTitle()), CodeShareInfo::getTitle, codeShareQueryDto.getTitle());
         queryWrapper.like(StrUtil.isNotEmpty(codeShareQueryDto.getDescription()), CodeShareInfo::getDescription, codeShareQueryDto.getDescription());
-        queryWrapper.orderByDesc(CodeShareInfo::getCreateTime);
 
         // 分页查询codeShareInfo信息
-        Page<CodeShareInfoVo> codeShareInfoPage = codeShareInfoMapper.getCodesListByUserId(infoPage, queryWrapper, userId);
+        Page<CodeShareInfoVo> codeShareInfoPage = codeShareInfoMapper.getCodesListByUserId(infoPage, codeShareQueryDto, queryWrapper, userId);
 
         // 封装vo
         List<CodeShareInfoVo> codeShareInfoVoList = codeShareInfoPage.getRecords();

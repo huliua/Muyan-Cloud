@@ -3,6 +3,7 @@ package com.muyan.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.muyan.domain.dto.CodeShareInfoPageQueryDto;
 import com.muyan.domain.entity.CodeShareInfo;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import org.apache.ibatis.annotations.Param;
@@ -14,5 +15,5 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface CodeShareInfoMapper extends BaseMapper<CodeShareInfo> {
 
-    Page<CodeShareInfoVo> getCodesListByUserId(Page<CodeShareInfo> page, @Param("ew") LambdaQueryWrapper<CodeShareInfo> queryWrapper, @Param("userId") Long userId);
+    Page<CodeShareInfoVo> getCodesListByUserId(Page<CodeShareInfo> page, @Param("queryDto")CodeShareInfoPageQueryDto queryDto, @Param("ew") LambdaQueryWrapper<CodeShareInfo> queryWrapper, @Param("userId") Long userId);
 }

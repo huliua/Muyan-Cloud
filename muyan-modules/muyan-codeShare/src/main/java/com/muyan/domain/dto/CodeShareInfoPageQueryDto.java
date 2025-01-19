@@ -41,4 +41,14 @@ public class CodeShareInfoPageQueryDto extends BaseQueryBean {
     @Schema(description = "代码内容")
     private String content;
 
+    @Schema(description = "创建人用户名")
+    private String username;
+
+    @Schema(description = "创建人昵称")
+    private String nickname;
+
+    @Schema(description = "更新时间")
+    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", timezone = "GMT+8")
+    private List<Date> updateTime;
+
 }
