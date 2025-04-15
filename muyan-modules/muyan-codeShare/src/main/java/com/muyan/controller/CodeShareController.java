@@ -6,6 +6,7 @@ import com.muyan.constants.CodeShareConstants;
 import com.muyan.domain.PageResult;
 import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.*;
+import com.muyan.domain.entity.CodeShareFile;
 import com.muyan.domain.entity.Share;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
@@ -19,13 +20,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * CodeShare模块相关
  *
  * @author huliua
  * @version 1.0
- * @date 2024-06-12 20:18
+ * @since 2024-06-12 20:18
  */
 @Slf4j
 @RestController
@@ -36,10 +38,16 @@ public class CodeShareController {
     @Resource
     private CodeShareService codeShareService;
 
+    @PostMapping("/saveBaseInfo")
+    @Operation(summary = "保存基础信息")
+    public ResponseResult<String> saveBaseInfo(@RequestBody CodeShareBaseInfoDto codeShareBaseInfoDto) {
+        return codeShareService.saveBaseInfo(codeShareBaseInfoDto);
+    }
+
     @PostMapping("/saveCodes")
     @Operation(summary = "保存代码")
-    public ResponseResult<String> saveCodes(@RequestBody CodeShareDto codeShareDto) {
-        return codeShareService.saveCodes(codeShareDto);
+    public ResponseResult<String> saveCodes(@RequestBody List<CodeShareFile> codeShareFileList) {
+        return codeShareService.saveCodes(codeShareFileList);
     }
 
     /**

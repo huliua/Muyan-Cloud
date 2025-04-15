@@ -65,41 +65,29 @@ public class CodeShareServiceImpl implements CodeShareService {
 
     @Override
     @Transactional
-    public ResponseResult<String> saveCodes(CodeShareDto codeShareDto) {
+    public ResponseResult<String> saveBaseInfo(CodeShareBaseInfoDto codeShareBaseInfoDto) {
         // 保存代码分享信息
-        if (codeShareDto.getCodeShareInfo().getId() == null) {
-            codeShareInfoMapper.insert(codeShareDto.getCodeShareInfo());
+        if (codeShareBaseInfoDto.getCodeShareInfo().getId() == null) {
+            codeShareInfoMapper.insert(codeShareBaseInfoDto.getCodeShareInfo());
         } else {
             // 判断是否有权限修改
-            Long count = codeShareInfoMapper.selectCount(new LambdaQueryWrapper<CodeShareInfo>().eq(CodeShareInfo::getId, codeShareDto.getCodeShareInfo().getId()).eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
+            Long count = codeShareInfoMapper.selectCount(new LambdaQueryWrapper<CodeShareInfo>().eq(CodeShareInfo::getId, codeShareBaseInfoDto.getCodeShareInfo().getId()).eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
             if (null == count || count == 0L) {
                 return ResponseResult.fail(403, "您没有权限操作该数据");
             }
 
-            codeShareInfoMapper.updateById(codeShareDto.getCodeShareInfo());
-
-            // 删除文件信息
-            LambdaQueryWrapper<CodeShareFile> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(CodeShareFile::getInfoId, codeShareDto.getCodeShareInfo().getId());
-            codeShareFileMapper.delete(queryWrapper);
+            codeShareInfoMapper.updateById(codeShareBaseInfoDto.getCodeShareInfo());
 
             // 删除标签信息
             LambdaQueryWrapper<CodeShareTag> queryWrapper2 = new LambdaQueryWrapper<>();
-            queryWrapper2.eq(CodeShareTag::getInfoId, codeShareDto.getCodeShareInfo().getId());
+            queryWrapper2.eq(CodeShareTag::getInfoId, codeShareBaseInfoDto.getCodeShareInfo().getId());
             codeShareTagMapper.delete(queryWrapper2);
         }
 
-        // 更新文件信息的infoId
-        codeShareDto.getCodeShareFileList().forEach(codeShareFile -> codeShareFile.setInfoId(codeShareDto.getCodeShareInfo().getId()));
-        // 插入文件信息
-        if (CollectionUtil.isNotEmpty(codeShareDto.getCodeShareFileList())) {
-            codeShareFileMapper.insertBatchSomeColumn(codeShareDto.getCodeShareFileList());
-        }
-
-        // 更新文件信息的tag
+        // 更新代码库的tag
         List<CodeShareTag> codeShareTagList = new ArrayList<>();
-        if (codeShareDto.getTagList() != null) {
-            codeShareDto.getTagList().forEach(tag -> {
+        if (codeShareBaseInfoDto.getTagList() != null) {
+            codeShareBaseInfoDto.getTagList().forEach(tag -> {
                 String tagCode = tag.getCode();
                 if (StrUtil.isEmpty(tagCode)) {
                     // 生成tagCode
@@ -108,7 +96,7 @@ public class CodeShareServiceImpl implements CodeShareService {
                 }
                 // 保存便签信息
                 CodeShareTag codeShareTag = new CodeShareTag();
-                codeShareTag.setInfoId(codeShareDto.getCodeShareInfo().getId());
+                codeShareTag.setInfoId(codeShareBaseInfoDto.getCodeShareInfo().getId());
                 codeShareTag.setTagCode(tagCode);
                 codeShareTagList.add(codeShareTag);
             });
@@ -118,8 +106,8 @@ public class CodeShareServiceImpl implements CodeShareService {
         }
 
         // 新增tag数据
-        if (CollectionUtil.isNotEmpty(codeShareDto.getTagList())) {
-            tagMapper.insertNotExists(codeShareDto.getTagList());
+        if (CollectionUtil.isNotEmpty(codeShareBaseInfoDto.getTagList())) {
+            tagMapper.insertNotExists(codeShareBaseInfoDto.getTagList());
             // 删除redis中的缓存
             redisUtil.del(StrUtil.concat(true, RedisConstants.DICT_KEY_PRE, "t_tag"));
             // 创建延迟任务队列
@@ -132,7 +120,32 @@ public class CodeShareServiceImpl implements CodeShareService {
         }
 
         // 返回当前id
-        return ResponseResult.success(String.valueOf(codeShareDto.getCodeShareInfo().getId()));
+        return ResponseResult.success(String.valueOf(codeShareBaseInfoDto.getCodeShareInfo().getId()));
+    }
+
+    @Override
+    public ResponseResult<String> saveCodes(List<CodeShareFile> codeShareFileList) {
+        if (CollectionUtil.isEmpty(codeShareFileList)) {
+            return ResponseResult.fail("没有需要保存的代码");
+        }
+        if (Objects.isNull(codeShareFileList.get(0).getInfoId())) {
+            return ResponseResult.fail("必要参数缺失(infoId)!");
+        }
+
+        // 判断infoId对应的代码是否有操作权限
+        Long count = codeShareInfoMapper.selectCount(new LambdaQueryWrapper<CodeShareInfo>().eq(CodeShareInfo::getId, codeShareFileList.get(0).getInfoId()).eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
+        if (null == count || count == 0L) {
+            return ResponseResult.fail(403, "您没有权限操作该数据");
+        }
+
+        // 先删除代码信息
+        LambdaQueryWrapper<CodeShareFile> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CodeShareFile::getInfoId, codeShareFileList.get(0).getInfoId());
+        codeShareFileMapper.delete(queryWrapper);
+
+        // 再插入代码信息
+        codeShareFileMapper.insertBatchSomeColumn(codeShareFileList);
+        return ResponseResult.success();
     }
 
     @Override

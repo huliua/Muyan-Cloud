@@ -2,10 +2,11 @@ package com.muyan.service;
 
 import com.muyan.domain.PageResult;
 import com.muyan.domain.ResponseResult;
-import com.muyan.domain.dto.CodeShareDto;
+import com.muyan.domain.dto.CodeShareBaseInfoDto;
 import com.muyan.domain.dto.CodeShareInfoDto;
 import com.muyan.domain.dto.CodeShareInfoPageQueryDto;
 import com.muyan.domain.dto.ShareInfoResponse;
+import com.muyan.domain.entity.CodeShareFile;
 import com.muyan.domain.entity.Share;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
@@ -13,6 +14,7 @@ import com.muyan.domain.vo.ShareExtVo;
 import com.muyan.domain.vo.ShareVo;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author huliua
@@ -20,7 +22,7 @@ import java.io.IOException;
  * @date 2024-06-12 20:19
  */
 public interface CodeShareService {
-    ResponseResult<String> saveCodes(CodeShareDto codeShareDto);
+    ResponseResult<String> saveBaseInfo(CodeShareBaseInfoDto codeShareBaseInfoDto);
 
     ResponseResult<PageResult<CodeShareInfoVo>> getCodesList(CodeShareInfoPageQueryDto codeShareQueryDto);
 
@@ -37,4 +39,6 @@ public interface CodeShareService {
     ResponseResult<ShareInfoResponse> getShareCode(Long shareId, String password);
 
     ResponseResult<ShareExtVo> getShareInfo(Long shareId);
+
+    ResponseResult<String> saveCodes(List<CodeShareFile> codeShareFileList);
 }

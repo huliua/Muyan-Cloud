@@ -14,13 +14,11 @@ import java.util.List;
  * @date 2024-06-12 20:35
  */
 @Data
-public class CodeShareDto implements Serializable {
+public class CodeShareBaseInfoDto implements Serializable {
 
     private final Long SerialVersionUID = 1L;
 
     private CodeShareInfo codeShareInfo;
-
-    private List<CodeShareFile> codeShareFileList;
 
     private List<Tag> tagList;
 }
