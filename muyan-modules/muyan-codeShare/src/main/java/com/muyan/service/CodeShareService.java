@@ -7,6 +7,7 @@ import com.muyan.domain.dto.CodeShareInfoDto;
 import com.muyan.domain.dto.CodeShareInfoPageQueryDto;
 import com.muyan.domain.dto.ShareInfoResponse;
 import com.muyan.domain.entity.CodeShareFile;
+import com.muyan.domain.entity.CodeShareTemplate;
 import com.muyan.domain.entity.Share;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
@@ -41,4 +42,6 @@ public interface CodeShareService {
     ResponseResult<ShareExtVo> getShareInfo(Long shareId);
 
     ResponseResult<String> saveCodes(List<CodeShareFile> codeShareFileList);
+
+    ResponseResult<String> saveTemplates(List<CodeShareTemplate> codeShareTemplateList);
 }

@@ -7,6 +7,7 @@ import com.muyan.domain.PageResult;
 import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.*;
 import com.muyan.domain.entity.CodeShareFile;
+import com.muyan.domain.entity.CodeShareTemplate;
 import com.muyan.domain.entity.Share;
 import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
@@ -48,6 +49,12 @@ public class CodeShareController {
     @Operation(summary = "保存代码")
     public ResponseResult<String> saveCodes(@RequestBody List<CodeShareFile> codeShareFileList) {
         return codeShareService.saveCodes(codeShareFileList);
+    }
+
+    @PostMapping("/saveTemplates")
+    @Operation(summary = "保存代码模板")
+    public ResponseResult<String> saveTemplates(@RequestBody List<CodeShareTemplate> codeShareTemplateList) {
+        return codeShareService.saveTemplates(codeShareTemplateList);
     }
 
     /**

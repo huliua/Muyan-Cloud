@@ -50,6 +50,8 @@ public class CodeShareServiceImpl implements CodeShareService {
     private CodeShareFileMapper codeShareFileMapper;
     @Resource
     private CodeShareTagMapper codeShareTagMapper;
+    @Resource
+    private CodeShareTemplateMapper codeShareTemplateMapper;
 
     @Resource
     private TagMapper tagMapper;
@@ -145,6 +147,31 @@ public class CodeShareServiceImpl implements CodeShareService {
 
         // 再插入代码信息
         codeShareFileMapper.insertBatchSomeColumn(codeShareFileList);
+        return ResponseResult.success();
+    }
+
+    @Override
+    public ResponseResult<String> saveTemplates(List<CodeShareTemplate> codeShareTemplateList) {
+        if (CollectionUtil.isEmpty(codeShareTemplateList)) {
+            return ResponseResult.success();
+        }
+        if (Objects.isNull(codeShareTemplateList.get(0).getInfoId())) {
+            return ResponseResult.fail("必要参数缺失(infoId)!");
+        }
+
+        // 判断infoId对应的代码是否有操作权限
+        Long count = codeShareInfoMapper.selectCount(new LambdaQueryWrapper<CodeShareInfo>().eq(CodeShareInfo::getId, codeShareTemplateList.get(0).getInfoId()).eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
+        if (null == count || count == 0L) {
+            return ResponseResult.fail(403, "您没有权限操作该数据");
+        }
+
+        // 先删除代码模板信息
+        LambdaQueryWrapper<CodeShareTemplate> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(CodeShareTemplate::getInfoId, codeShareTemplateList.get(0).getInfoId());
+        codeShareTemplateMapper.delete(queryWrapper);
+
+        // 再插入代码模板信息
+        codeShareTemplateMapper.insertBatchSomeColumn(codeShareTemplateList);
         return ResponseResult.success();
     }
 
