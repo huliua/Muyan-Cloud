@@ -1,6 +1,7 @@
 package com.muyan.domain.vo;
 
 import com.muyan.domain.entity.CodeShareFile;
+import com.muyan.domain.entity.CodeShareTemplate;
 import com.muyan.domain.entity.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,8 @@ public class CodeShareVo implements Serializable {
     private CodeShareInfoVo codeShareInfoVo;
 
     private List<CodeShareFile> codeShareFileList;
+
+    private List<CodeShareTemplate> templateList;
 
     private List<Tag> tagList;
 }

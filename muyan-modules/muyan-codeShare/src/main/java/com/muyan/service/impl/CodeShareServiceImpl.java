@@ -7,9 +7,11 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.muyan.constant.RedisConstants;
 import com.muyan.constants.CodeShareConstants;
+import com.muyan.constants.CommonConstants;
 import com.muyan.domain.PageResult;
 import com.muyan.domain.ResponseResult;
 import com.muyan.domain.dto.*;
@@ -119,6 +121,11 @@ public class CodeShareServiceImpl implements CodeShareService {
                 log.info("开始延迟双删...");
                 redisUtil.del(StrUtil.concat(true, RedisConstants.DICT_KEY_PRE, "t_tag"));
             }, 2000, TimeUnit.MILLISECONDS);
+        }
+
+        // 如果不是模板文件，删除模版信息
+        if (!StrUtil.equals(codeShareBaseInfoDto.getCodeShareInfo().getIsTemplate(), CommonConstants.YES)) {
+            codeShareTemplateMapper.delete(new LambdaQueryWrapper<CodeShareTemplate>().eq(CodeShareTemplate::getInfoId, codeShareBaseInfoDto.getCodeShareInfo().getId()));
         }
 
         // 返回当前id
@@ -256,12 +263,15 @@ public class CodeShareServiceImpl implements CodeShareService {
 
         // 获取文件信息
         List<CodeShareFile> codeShareFileList = codeShareFileMapper.selectList(new LambdaQueryWrapper<CodeShareFile>().eq(CodeShareFile::getInfoId, id));
+        // 获取模板字段信息
+        List<CodeShareTemplate> templateList = codeShareTemplateMapper.selectList(new LambdaQueryWrapper<CodeShareTemplate>().eq(CodeShareTemplate::getInfoId, id).orderBy(true, true, CodeShareTemplate::getSort));
         // 获取标签信息
         List<Tag> tagList = tagMapper.selectList(new LambdaQueryWrapper<Tag>().exists("select 1 from t_code_share_tag t where t.infoId={0} and t.tagCode=t_tag.code", id));
 
         CodeShareVo codeShareVo = new CodeShareVo();
         codeShareVo.setCodeShareInfoVo(BeanUtil.copyProperties(codeShareInfo, CodeShareInfoVo.class));
         codeShareVo.setCodeShareFileList(codeShareFileList);
+        codeShareVo.setTemplateList(templateList);
         codeShareVo.setTagList(tagList);
 
         return ResponseResult.success(codeShareVo);

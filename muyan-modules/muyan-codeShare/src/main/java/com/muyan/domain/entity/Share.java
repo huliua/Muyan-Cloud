@@ -2,6 +2,8 @@ package com.muyan.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.muyan.domain.dto.ExpireEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +19,7 @@ import java.util.Date;
 public class Share implements Serializable {
 
     @TableId
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     private Long codeId;

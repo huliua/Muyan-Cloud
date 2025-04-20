@@ -49,6 +49,9 @@ public class CodeShareInfoVo implements Serializable {
     @Schema(description = "封面")
     private String cover;
 
+    @Schema(description = "是否代码模板")
+    private String isTemplate;
+
     @Schema(description = "是否点赞")
     private Integer hasStared;
 

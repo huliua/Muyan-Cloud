@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,9 +31,11 @@ public class CodeShareInfo implements Serializable {
     private Long SerialVersionUID = 1L;
 
     @TableId
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     @TableField(fill = FieldFill.INSERT)
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long userId;
 
     private String title;
@@ -43,6 +47,8 @@ public class CodeShareInfo implements Serializable {
     private String password;
 
     private String cover;
+
+    private String isTemplate;
 
     @TableField(fill = FieldFill.INSERT)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
