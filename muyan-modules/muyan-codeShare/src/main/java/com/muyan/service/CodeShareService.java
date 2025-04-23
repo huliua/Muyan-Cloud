@@ -16,6 +16,7 @@ import com.muyan.domain.vo.ShareVo;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author huliua
@@ -44,4 +45,8 @@ public interface CodeShareService {
     ResponseResult<String> saveCodes(List<CodeShareFile> codeShareFileList);
 
     ResponseResult<String> saveTemplates(List<CodeShareTemplate> codeShareTemplateList);
+
+    ResponseResult<List<CodeShareTemplate>> getTemplateFields(Long id);
+
+    ResponseResult<List<CodeShareFile>> genCode(Long id, Map<String, Object> templateFieldMap);
 }

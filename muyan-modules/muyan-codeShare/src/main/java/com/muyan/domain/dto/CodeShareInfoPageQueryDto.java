@@ -34,6 +34,9 @@ public class CodeShareInfoPageQueryDto extends BaseQueryBean {
     @Schema(description = "标签")
     private List<String> tag;
 
+    @Schema(description = "是否模板代码")
+    private List<String> isTemplate;
+
     @Schema(description = "创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss", timezone = "GMT+8")
     private List<Date> createTime;

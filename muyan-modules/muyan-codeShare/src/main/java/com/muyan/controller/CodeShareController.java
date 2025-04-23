@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * CodeShare模块相关
@@ -139,5 +140,15 @@ public class CodeShareController {
     @PostMapping("/getShareCode/{shareId}")
     public ResponseResult<ShareInfoResponse> getShareCode(@PathVariable Long shareId, @RequestBody ShareInfoRequest shareInfoRequest) {
         return codeShareService.getShareCode(shareId, shareInfoRequest.getPassword());
+    }
+
+    @PostMapping("/getTemplateFields/{id}")
+    public ResponseResult<List<CodeShareTemplate>> getTemplateFields(@PathVariable Long id) {
+        return codeShareService.getTemplateFields(id);
+    }
+
+    @PostMapping("/genCode/{id}")
+    public ResponseResult<List<CodeShareFile>> genCode(@PathVariable Long id, @RequestBody Map<String, Object> templateFieldMap) {
+        return codeShareService.genCode(id, templateFieldMap);
     }
 }

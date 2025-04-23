@@ -7,7 +7,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.muyan.constant.RedisConstants;
 import com.muyan.constants.CodeShareConstants;
@@ -24,8 +23,10 @@ import com.muyan.exception.ForbiddenException;
 import com.muyan.mapper.*;
 import com.muyan.service.CodeShareService;
 import com.muyan.utils.EncodeUtils;
+import com.muyan.utils.FreemarkerUtil;
 import com.muyan.utils.QueryUtils;
 import com.muyan.utils.RedisUtil;
+import freemarker.template.TemplateException;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -198,8 +199,8 @@ public class CodeShareServiceImpl implements CodeShareService {
                 queryWrapper.and(wrapper -> wrapper.eq(CodeShareInfo::getVisibility, "public").or().eq(CodeShareInfo::getUserId, StpUtil.getLoginIdAsLong()));
             }
         }
-        // 构建查询条件
         queryWrapper.exists(CollectionUtil.isNotEmpty(codeShareQueryDto.getTag()), "select 1 from t_code_share_tag t where t.infoId=t_code_share_info.id and t.tagCode in(" + QueryUtils.convertSqlIds(codeShareQueryDto.getTag()) + ")");
+        queryWrapper.in(CollectionUtil.isNotEmpty(codeShareQueryDto.getIsTemplate()), CodeShareInfo::getIsTemplate, codeShareQueryDto.getIsTemplate());
         if (CollectionUtil.isNotEmpty(codeShareQueryDto.getCreateTime())) {
             queryWrapper.between(CodeShareInfo::getCreateTime, codeShareQueryDto.getCreateTime().get(0), codeShareQueryDto.getCreateTime().get(1));
         }
@@ -302,6 +303,34 @@ public class CodeShareServiceImpl implements CodeShareService {
     public ResponseResult<PageResult<CodeShareInfoVo>> getCodesSearchList(CodeShareInfoPageQueryDto codeShareQueryDto) throws IOException {
         PageResult<CodeShareInfoVo> result = new PageResult<>();
         return ResponseResult.success(result);
+    }
+
+    @Override
+    public ResponseResult<List<CodeShareTemplate>> getTemplateFields(Long id) {
+        List<CodeShareTemplate> templateList = codeShareTemplateMapper.selectList(new LambdaQueryWrapper<CodeShareTemplate>().eq(CodeShareTemplate::getInfoId, id).orderBy(true, true, CodeShareTemplate::getSort));
+        return ResponseResult.success(templateList);
+    }
+
+    @Override
+    public ResponseResult<List<CodeShareFile>> genCode(Long id, Map<String, Object> templateFieldMap) {
+        // 查询出文件信息
+        List<CodeShareFile> codeShareFileList = codeShareFileMapper.selectList(new LambdaQueryWrapper<CodeShareFile>().eq(CodeShareFile::getInfoId, id));
+        if (CollectionUtil.isEmpty(codeShareFileList)) {
+            return ResponseResult.fail("未获取到代码文件!");
+        }
+        // 对每个文件进行替换模板
+        for (CodeShareFile codeShareFile : codeShareFileList) {
+            try {
+                codeShareFile.setName(FreemarkerUtil.process(codeShareFile.getName(), templateFieldMap));
+                if (StrUtil.isNotEmpty(codeShareFile.getContent())) {
+                    codeShareFile.setContent(FreemarkerUtil.process(codeShareFile.getContent(), templateFieldMap));
+                }
+            } catch (IOException | TemplateException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        // 返回替换后的内容
+        return ResponseResult.success(codeShareFileList);
     }
 
     @Override
