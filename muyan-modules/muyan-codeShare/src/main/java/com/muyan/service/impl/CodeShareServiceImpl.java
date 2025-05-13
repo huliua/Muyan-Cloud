@@ -312,6 +312,32 @@ public class CodeShareServiceImpl implements CodeShareService {
     }
 
     @Override
+    @Transactional
+    public ResponseResult<String> removeIncompleteInfo() {
+        // 删除模板信息
+        LambdaQueryWrapper<CodeShareTemplate> delTemplateWrapper = new LambdaQueryWrapper<>();
+        delTemplateWrapper.notExists("select 1 from t_code_share_file t where t.infoId=t_code_share_template.infoId");
+        codeShareTemplateMapper.delete(delTemplateWrapper);
+
+        // 删除喜爱信息
+        LambdaQueryWrapper<CodeShareFavorite> delFavorWrapper = new LambdaQueryWrapper<>();
+        delFavorWrapper.notExists("select 1 from t_code_share_file t where t.infoId=t_code_share_favorite.codeInfoId");
+        codeShareFavoriteMapper.delete(delFavorWrapper);
+
+        // 删除分享信息
+        LambdaQueryWrapper<Share> delShareWrapper = new LambdaQueryWrapper<>();
+        delShareWrapper.notExists("select 1 from t_code_share_file t where t.infoId=t_code_share.codeId");
+        shareMapper.delete(delShareWrapper);
+
+        // 删除分享信息
+        LambdaQueryWrapper<CodeShareInfo> delInfoWrapper = new LambdaQueryWrapper<>();
+        delInfoWrapper.notExists("select 1 from t_code_share_file t where t.infoId=t_code_share_info.id");
+        codeShareInfoMapper.delete(delInfoWrapper);
+
+        return ResponseResult.success();
+    }
+
+    @Override
     public ResponseResult<List<CodeShareFile>> genCode(Long id, Map<String, Object> templateFieldMap) {
         // 查询出文件信息
         List<CodeShareFile> codeShareFileList = codeShareFileMapper.selectList(new LambdaQueryWrapper<CodeShareFile>().eq(CodeShareFile::getInfoId, id));

@@ -49,4 +49,6 @@ public interface CodeShareService {
     ResponseResult<List<CodeShareTemplate>> getTemplateFields(Long id);
 
     ResponseResult<List<CodeShareFile>> genCode(Long id, Map<String, Object> templateFieldMap);
+
+    ResponseResult<String> removeIncompleteInfo();
 }
