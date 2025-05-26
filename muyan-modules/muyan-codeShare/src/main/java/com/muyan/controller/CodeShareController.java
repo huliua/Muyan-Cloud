@@ -17,6 +17,7 @@ import com.muyan.service.CodeShareService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -150,5 +151,10 @@ public class CodeShareController {
     @PostMapping("/genCode/{id}")
     public ResponseResult<List<CodeShareFile>> genCode(@PathVariable Long id, @RequestBody Map<String, Object> templateFieldMap) {
         return codeShareService.genCode(id, templateFieldMap);
+    }
+
+    @PostMapping("/downloadCode/{id}")
+    public void downloadCode(@PathVariable Long id, @RequestBody Map<String, Object> templateFieldMap, HttpServletResponse response) {
+        codeShareService.downloadCode(id, templateFieldMap, response);
     }
 }

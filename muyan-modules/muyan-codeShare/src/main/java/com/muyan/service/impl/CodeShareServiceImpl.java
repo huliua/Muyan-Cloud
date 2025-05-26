@@ -4,10 +4,13 @@ import cn.dev33.satoken.secure.BCrypt;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.ZipUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.muyan.config.CodeShareDownLoadConfig;
 import com.muyan.constant.RedisConstants;
 import com.muyan.constants.CodeShareConstants;
 import com.muyan.constants.CommonConstants;
@@ -22,17 +25,19 @@ import com.muyan.domain.vo.ShareVo;
 import com.muyan.exception.ForbiddenException;
 import com.muyan.mapper.*;
 import com.muyan.service.CodeShareService;
-import com.muyan.utils.EncodeUtils;
 import com.muyan.utils.FreemarkerUtil;
 import com.muyan.utils.QueryUtils;
 import com.muyan.utils.RedisUtil;
 import freemarker.template.TemplateException;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -65,7 +70,7 @@ public class CodeShareServiceImpl implements CodeShareService {
     @Resource
     private ShareMapper shareMapper;
     @Resource
-    private EncodeUtils encodeUtils;
+    private CodeShareDownLoadConfig codeShareDownLoadConfig;
 
 
     @Override
@@ -337,6 +342,72 @@ public class CodeShareServiceImpl implements CodeShareService {
         return ResponseResult.success();
     }
 
+    /**
+     * 下载代码
+     *
+     * @param id               代码信息id
+     * @param templateFieldMap 模板字段信息
+     * @param response
+     */
+    @Override
+    public void downloadCode(Long id, Map<String, Object> templateFieldMap, HttpServletResponse response) {
+        ResponseResult<List<CodeShareFile>> result = genCode(id, templateFieldMap);
+        // 创建对应的临时文件
+        List<CodeShareFile> codeShareFileList = result.getData();
+        if (CollectionUtil.isEmpty(codeShareFileList)) {
+            return;
+        }
+        String uuid = UUID.randomUUID().toString();
+        String path = codeShareDownLoadConfig.getPath() + "/" + uuid;
+        // 构建文件的路径信息
+        genCodeFilePath(codeShareFileList, "", path + "/");
+
+        // 生成文件
+        genFile(codeShareFileList);
+
+        // 打包成压缩包形式
+        try {
+            ZipUtil.zip(path, path + ".zip");
+        } catch (Exception e) {
+            log.error("下载代码失败", e);
+        }
+
+        log.info("开始下载代码");
+        // 下载文件
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + uuid + ".zip" + "\"");
+        response.setHeader("filename",  uuid + ".zip");
+        try (InputStream inputStream = new FileInputStream(new File(path + ".zip"));
+             OutputStream outputStream = response.getOutputStream()) {
+            IOUtils.copy(inputStream, outputStream);
+            outputStream.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        log.info("下载代码完成");
+        // 删除文件
+        FileUtil.del(path);
+        FileUtil.del(path + ".zip");
+    }
+
+    private void genFile(List<CodeShareFile> codeShareFileList) {
+        for (CodeShareFile codeShareFile : codeShareFileList) {
+            try {
+                log.info("生成文件名:{}", codeShareFile.getName());
+                if (codeShareFile.getType().equals("file")) {
+                    if (!FileUtil.exist(codeShareFile.getName())) {
+                        FileUtil.mkParentDirs(codeShareFile.getName());
+                    }
+                    FileUtil.writeUtf8String(codeShareFile.getContent(), codeShareFile.getName());
+                } else {
+                    FileUtil.mkdir(codeShareFile.getName());
+                }
+            } catch (Exception e) {
+                log.error("下载代码失败:", e);
+            }
+        }
+    }
+
     @Override
     public ResponseResult<List<CodeShareFile>> genCode(Long id, Map<String, Object> templateFieldMap) {
         // 查询出文件信息
@@ -458,4 +529,24 @@ public class CodeShareServiceImpl implements CodeShareService {
         }
 
     }
+
+    /**
+     * 根据文件的name、type、parentId生成每个文件的路径信息
+     *
+     * @param codeShareFileList 文件数据列表
+     */
+    private void genCodeFilePath(List<CodeShareFile> codeShareFileList, String parentId, String path) {
+        // 获取文件的根目录
+        List<CodeShareFile> fileList = codeShareFileList.stream().filter(file -> file.getParentId().equals(parentId)).toList();
+
+        // 循环从目录开始，构建其下所有的子目录
+        for (CodeShareFile file : fileList) {
+            file.setName(path + file.getName());
+            if (file.getType().equals("file")) {
+                continue;
+            }
+            genCodeFilePath(codeShareFileList, file.getId(), file.getName() + "/");
+        }
+    }
+
 }

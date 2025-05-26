@@ -13,6 +13,7 @@ import com.muyan.domain.vo.CodeShareInfoVo;
 import com.muyan.domain.vo.CodeShareVo;
 import com.muyan.domain.vo.ShareExtVo;
 import com.muyan.domain.vo.ShareVo;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -51,4 +52,6 @@ public interface CodeShareService {
     ResponseResult<List<CodeShareFile>> genCode(Long id, Map<String, Object> templateFieldMap);
 
     ResponseResult<String> removeIncompleteInfo();
+
+    void downloadCode(Long id, Map<String, Object> templateFieldMap, HttpServletResponse response);
 }
