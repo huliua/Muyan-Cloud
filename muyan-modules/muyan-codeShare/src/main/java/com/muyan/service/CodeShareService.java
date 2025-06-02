@@ -53,5 +53,5 @@ public interface CodeShareService {
 
     ResponseResult<String> removeIncompleteInfo();
 
-    void downloadCode(Long id, Map<String, Object> templateFieldMap, HttpServletResponse response);
+    void downloadCode(Long id, java.util.Map<java.lang.String,java.lang.Object> templateFieldMap, HttpServletResponse response);
 }
